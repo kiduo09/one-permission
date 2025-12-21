@@ -1,0 +1,94 @@
+/**
+ * 主题样式
+ */
+
+/* 浅色主题（默认） */
+[data-theme="light"] {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e5e7eb;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题 */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* 紫色主题 */
+[data-theme="purple"] {
+  --bg-primary: #faf5ff;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e9d5ff;
+  --shadow: rgba(114, 46, 209, 0.1);
+}
+
+/* 蓝色主题 */
+[data-theme="blue"] {
+  --bg-primary: #eff6ff;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #bfdbfe;
+  --shadow: rgba(24, 144, 255, 0.1);
+}
+
+/* 绿色主题 */
+[data-theme="green"] {
+  --bg-primary: #f0fdf4;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #bbf7d0;
+  --shadow: rgba(82, 196, 26, 0.1);
+}
+
+/* 应用主题变量到布局 */
+.layout[data-theme="dark"] {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.layout[data-theme="dark"] .topbar {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+.layout[data-theme="dark"] .sider {
+  background: var(--bg-secondary);
+  border-right-color: var(--border-color);
+}
+
+.layout[data-theme="dark"] .table-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.layout[data-theme="dark"] .filter-bar {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* 左侧菜单底部退出按钮 - 深色主题 */
+.layout[data-theme="dark"] .sider-footer .logout-btn {
+  background: rgba(148, 163, 184, 0.15) !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+  color: #94a3b8 !important;
+}
+
+.layout[data-theme="dark"] .sider-footer .logout-btn:hover {
+  background: rgba(148, 163, 184, 0.2) !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 章鱼身体（橙红色，类似emoji） -->
+  <circle cx="50" cy="45" r="22" fill="#ff6b6b"/>
+  <circle cx="50" cy="45" r="22" fill="url(#gradient)" opacity="0.8"/>
+  
+  <!-- 渐变定义 -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8787;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b6b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 章鱼眼睛 -->
+  <circle cx="42" cy="40" r="5" fill="#ffffff"/>
+  <circle cx="58" cy="40" r="5" fill="#ffffff"/>
+  <circle cx="42" cy="40" r="2.5" fill="#000000"/>
+  <circle cx="58" cy="40" r="2.5" fill="#000000"/>
+  
+  <!-- 章鱼嘴巴（微笑） -->
+  <path d="M 42 48 Q 50 52 58 48" stroke="#000000" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- 章鱼触手（8条，类似emoji） -->
+  <ellipse cx="25" cy="60" rx="6" ry="18" fill="#ff6b6b" transform="rotate(-20 25 60)"/>
+  <ellipse cx="35" cy="65" rx="6" ry="18" fill="#ff6b6b" transform="rotate(-10 35 65)"/>
+  <ellipse cx="45" cy="68" rx="6" ry="18" fill="#ff6b6b"/>
+  <ellipse cx="55" cy="68" rx="6" ry="18" fill="#ff6b6b"/>
+  <ellipse cx="65" cy="65" rx="6" ry="18" fill="#ff6b6b" transform="rotate(10 65 65)"/>
+  <ellipse cx="75" cy="60" rx="6" ry="18" fill="#ff6b6b" transform="rotate(20 75 60)"/>
+  <ellipse cx="30" cy="72" rx="6" ry="18" fill="#ff6b6b" transform="rotate(-15 30 72)"/>
+  <ellipse cx="70" cy="72" rx="6" ry="18" fill="#ff6b6b" transform="rotate(15 70 72)"/>
+  
+  <!-- 触手吸盘（小圆点） -->
+  <circle cx="25" cy="70" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="35" cy="75" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="45" cy="78" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="55" cy="78" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="65" cy="75" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="75" cy="70" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="30" cy="82" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="70" cy="82" r="1.5" fill="#ffffff" opacity="0.5"/>
+</svg>

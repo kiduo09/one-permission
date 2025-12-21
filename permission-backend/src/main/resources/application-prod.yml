@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://your-prod-host:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: your-username
+    password: your-password
+
+logging:
+  level:
+    com.zhangyu.permission: INFO
+

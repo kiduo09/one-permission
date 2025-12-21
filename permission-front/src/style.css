@@ -1,0 +1,644 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+}
+
+/* 共享组件样式 */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  background: #ffffff;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  min-width: 320px;
+  transition: all 0.2s;
+}
+
+.search:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #1e293b;
+  width: 100%;
+  font-size: 13px;
+}
+
+.search input::placeholder {
+  color: #94a3b8;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filters select {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #1e293b;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.filters select:hover {
+  border-color: #cbd5e1;
+}
+
+.filters select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.reset {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reset:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.primary:active {
+  transform: translateY(0);
+}
+
+.table-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty-tip {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty-row {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.table-head,
+.table-row {
+  display: grid;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+/* 不同视图的列宽定义 */
+.table-grid-login {
+  grid-template-columns: 0.7fr 1.2fr 1.1fr 0.8fr 1.6fr 1.4fr 1fr;
+}
+
+.table-grid-apps {
+  grid-template-columns: 0.7fr 1.4fr 1.2fr 1.6fr 1.1fr 0.9fr 1.1fr;
+}
+
+.table-grid-normal {
+  grid-template-columns: 1fr 1fr 1.2fr 0.8fr 0.8fr;
+}
+
+.table-grid-appmenus,
+.table-grid-systemmenus {
+  grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr 1.2fr 1.2fr 0.8fr 1fr 1.4fr;
+}
+
+.table-grid-approles {
+  grid-template-columns: 0.9fr 1.3fr 1.3fr 0.8fr 0.8fr 1.5fr;
+}
+
+.table-grid-systemroles {
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 1.2fr;
+}
+
+.table-head {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.table-row {
+  border-top: 1px solid #f1f5f9;
+  transition: background 0.2s;
+}
+
+.table-row:hover {
+  background: #f8fafc;
+}
+
+.td,
+.th {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.td {
+  color: #1e293b;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.status.ok {
+  background: #10b981;
+  color: #fff;
+}
+
+.status.disabled {
+  background: #94a3b8;
+  color: #fff;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.action-btn:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.action-btn.danger {
+  color: #ef4444;
+}
+
+.action-btn.danger:hover {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
+.action-btn.add-btn:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.action-btn.add-btn:disabled:hover {
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+/* 已添加用户行的样式 */
+.table-row.user-added {
+  background: #f8fafc;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.table-row.user-added .td {
+  color: #94a3b8;
+}
+
+.table-row.user-added input[type="checkbox"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.divider {
+  color: #cbd5e1;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 13px;
+  padding: 4px 2px 0;
+}
+
+.pager {
+  display: flex;
+  gap: 6px;
+}
+
+.pager-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  min-width: 36px;
+  transition: all 0.2s;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pager-btn:hover:not(:disabled):not(.active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.pager-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: #fff;
+}
+
+.pager-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-content {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  width: 480px;
+  max-width: 90vw;
+  color: #1e293b;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content.small {
+  width: 420px;
+}
+
+.modal-content.large {
+  width: 800px;
+  max-width: 90vw;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close:hover {
+  color: #1e293b;
+}
+
+.modal-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-body.detail {
+  gap: 8px;
+}
+
+.modal-body.detail .label {
+  color: #64748b;
+  margin-right: 6px;
+  font-weight: 500;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-row label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #1e293b;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.form-row textarea {
+  min-height: 60px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row input:disabled,
+.form-row input.disabled-input,
+.form-row select:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.form-row input:disabled:focus,
+.form-row input.disabled-input:focus,
+.form-row select:disabled:focus {
+  border-color: #e5e7eb;
+  box-shadow: none;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+
+.ghost {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ghost:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.danger {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.danger:hover {
+  color: #dc2626;
+}
+
+/* 取消授权弹框按钮样式 */
+.revoke-cancel-btn {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.revoke-cancel-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.revoke-cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: #e5e7eb;
+}
+
+.revoke-cancel-btn:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.revoke-confirm-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  color: #ffffff !important;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.revoke-confirm-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.revoke-confirm-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.2);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  color: #ffffff !important;
+}
+
+.revoke-confirm-btn:focus {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+/* 树组件半选状态显示为减号 - 样式与选中状态一致 */
+/* 隐藏默认的半选图标（横线） */
+.ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::before,
+.ant-tree .ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::before {
+  display: none !important;
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+/* 半选状态复选框：使用主题色，与选中状态一致 */
+/* 注意：背景色和边框色由 JavaScript 动态设置（见 theme.js 中的 updateCheckboxIndeterminateTheme） */
+/* 这里只保留其他必要的样式，背景色和边框色会在主题切换时动态更新 */
+
+/* 确保样式优先级足够高 - 移除重复定义，避免冲突 */
+
+/* 添加白色减号作为半选状态内容 */
+.ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::after,
+.ant-tree .ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::after {
+  content: '−' !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  transform: none !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  border: none !important;
+  background: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* 悬停状态 */
+.ant-tree-checkbox-indeterminate:hover .ant-tree-checkbox-inner,
+.ant-tree .ant-tree-checkbox-indeterminate:hover .ant-tree-checkbox-inner {
+  background-color: var(--ant-color-primary-hover, #40a9ff) !important;
+  border-color: var(--ant-color-primary-hover, #40a9ff) !important;
+}
+
+.ant-tree-checkbox-indeterminate:hover .ant-tree-checkbox-inner::after,
+.ant-tree .ant-tree-checkbox-indeterminate:hover .ant-tree-checkbox-inner::after {
+  color: #ffffff !important;
+}

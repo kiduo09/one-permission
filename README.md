@@ -1,17 +1,30 @@
 # ONE-PERMISSION 权限管理系统
 
+<div align="right">
+
+[![GitHub stars](https://img.shields.io/github/stars/kiduo09/one-permission.svg?style=social&label=Star)](https://github.com/kiduo09/one-permission)
+[![GitHub forks](https://img.shields.io/github/forks/kiduo09/one-permission.svg?style=social&label=Fork)](https://github.com/kiduo09/one-permission/fork)
+[![GitHub watchers](https://img.shields.io/github/watchers/kiduo09/one-permission.svg?style=social&label=Watch)](https://github.com/kiduo09/one-permission)
+
+</div>
+
 ## 📖 项目介绍
 
 ONE-PERMISSION 是一个基于 Vue3 + Spring Boot 的企业级权限管理系统，提供完整的应用权限管理、用户授权、角色管理、菜单管理等功能。系统采用前后端分离架构，支持多应用、多角色、多用户的精细化权限控制。
 
-### 核心特性
+### 🎯 项目特色
+
+**🚀 开箱即用**: 配置数据库连接后启动项目，系统会自动创建所有表结构并初始化测试数据，无需手动执行SQL脚本！
+
+### ✨ 核心特性
 
 - 🔐 **多层级权限管理**：支持系统级和应用级权限管理
 - 👥 **灵活的用户授权**：支持按用户和按部门两种授权方式
 - 🎯 **精细化权限控制**：菜单、按钮级别的权限控制
 - 📊 **数据统计分析**：Dashboard 数据看板，实时统计系统数据
-- 🎨 **现代化UI设计**：基于 Ant Design Vue，支持多主题切换
+- 🎨 **现代化UI设计**：基于 Ant Design Vue，支持5种主题切换
 - 🔒 **安全可靠**：密码加密存储，Token 认证，权限验证
+- ⚡ **自动初始化**：启动时自动创建表结构和测试数据
 
 ## 🛠️ 技术栈
 
@@ -28,7 +41,7 @@ ONE-PERMISSION 是一个基于 Vue3 + Spring Boot 的企业级权限管理系统
 ### 后端技术
 
 - **框架**：Spring Boot 2.7.18
-- **Java版本**：JDK 1.8
+- **Java版本**：JDK 1.8+ (兼容性优化)
 - **ORM框架**：MyBatis-Plus 3.5.3.1
 - **数据库**：MySQL 5.7+
 - **连接池**：Druid 1.2.18
@@ -36,6 +49,7 @@ ONE-PERMISSION 是一个基于 Vue3 + Spring Boot 的企业级权限管理系统
 - **密码加密**：Spring Security BCrypt
 - **工具类**：Hutool 5.8.22
 - **JSON处理**：FastJSON2 2.0.43
+- **自动初始化**：CommandLineRunner + SQL脚本自动执行
 
 ### 数据库
 
@@ -71,11 +85,11 @@ zhangyu-permission-project/
 │   │       ├── config/        # 配置类
 │   │       └── common/        # 公共类
 │   ├── src/main/resources/
-│   │   ├── sql/              # SQL脚本
+│   │   ├── sql/              # SQL脚本 (仅保留 init_database.sql)
+│   │   │   ├── init_database.sql    # 完整数据库初始化脚本
+│   │   │   └── README_数据库初始化.md  # 数据库文档
 │   │   └── application.yml   # 配置文件
 │   └── pom.xml               # Maven配置
-│
-└── database_schema.sql       # 数据库表结构
 ```
 
 ## ✨ 功能模块
@@ -231,16 +245,14 @@ zhangyu-permission-project/
 CREATE DATABASE permission_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-2. 执行数据库脚本：
-```bash
-# 执行表结构脚本
-mysql -u root -p permission_db < database_schema.sql
+2. **自动初始化** (推荐)：
+   - 项目启动时会自动创建所有表结构和初始化测试数据
+   - 无需手动执行SQL脚本
 
-# 执行初始化数据脚本（可选）
-mysql -u root -p permission_db < permission-backend/src/main/resources/sql/init_test_data.sql
-mysql -u root -p permission_db < permission-backend/src/main/resources/sql/init_applications_and_menus.sql
-mysql -u root -p permission_db < permission-backend/src/main/resources/sql/init_normal_users_data.sql
-mysql -u root -p permission_db < permission-backend/src/main/resources/sql/init_departments_data.sql
+3. **手动初始化** (可选)：
+```bash
+# 手动执行完整初始化脚本
+mysql -u root -p permission_db < permission-backend/src/main/resources/sql/init_database.sql
 ```
 
 ### 后端启动
@@ -257,9 +269,14 @@ spring:
 2. 启动后端服务：
 ```bash
 cd permission-backend
-mvn clean install
-mvn spring-boot:run
+mvn clean compile  # 编译项目
+mvn spring-boot:run  # 启动服务
 ```
+
+**🚀 重要说明**：
+- 首次启动时会自动创建所有数据库表和初始化测试数据
+- 如需重新初始化，可删除数据库表后重启服务
+- 自动初始化使用 `CREATE TABLE IF NOT EXISTS` 和 `INSERT IGNORE` 确保安全重复执行
 
 后端服务默认运行在：`http://localhost:1105/one-permission`
 
@@ -276,6 +293,11 @@ npm install
 npm run dev
 ```
 
+**🔧 前端配置说明**：
+- 自动代理 `/one-permission` 请求到后端服务
+- 支持热重载开发
+- 默认端口：`5173`
+
 前端服务默认运行在：`http://localhost:5173`
 
 ### 默认账号
@@ -283,6 +305,19 @@ npm run dev
 - **登录账户**：admin
 - **密码**：123456
 - **管理员类型**：系统管理员
+
+### 🗄️ 自动初始化数据
+
+项目启动时会自动创建以下数据：
+
+- **管理员账户**：admin (系统管理员)
+- **测试应用**：CRM系统、ERP系统
+- **部门结构**：研发中心、产品中心、运营中心等6个顶级部门
+- **普通用户**：55个测试用户（基于水浒传人物）
+- **菜单结构**：完整的应用菜单树
+- **角色配置**：应用角色及权限分配
+
+**💡 提示**：所有初始化数据都可以通过管理界面进行修改和扩展。
 
 ## 📝 API 文档
 
@@ -380,18 +415,32 @@ mvn clean package
 
 ## 🔧 配置说明
 
+### 后端配置 (application.yml)
+
+```yaml
+server:
+  port: 1105  # 服务端口
+  servlet:
+    context-path: /one-permission  # API上下文路径
+
+spring:
+  datasource:  # 数据库配置
+    url: jdbc:mysql://localhost:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: your_username
+    password: your_password
+
+sa-token:  # Token认证配置
+  token-name: satoken
+  timeout: 7200  # 2小时有效期
+  activity-timeout: -1  # 不启用活动超时
+```
+
 ### 前端配置
 
-- **API代理**：`vite.config.js` 中配置了 `/one-permission` 代理到后端服务
-- **主题配置**：`src/utils/theme.js` 中配置主题信息
-- **API地址**：`src/utils/api.js` 中配置 API 基础路径
-
-### 后端配置
-
-- **服务端口**：`server.port=1105`
-- **上下文路径**：`server.servlet.context-path=/one-permission`
-- **数据库配置**：`spring.datasource.*`
-- **Sa-Token配置**：`sa-token.*`
+- **API代理**：已配置 `/one-permission` 自动代理到后端
+- **主题系统**：支持5种主题(浅色/深色/紫色/蓝色/绿色)
+- **开发端口**：`5173`
+- **生产构建**：`npm run build` 生成静态文件
 
 ## 📄 许可证
 
@@ -403,9 +452,19 @@ mvn clean package
 
 ## 📞 联系方式
 
+- **项目地址**：[https://github.com/kiduo09/one-permission](https://github.com/kiduo09/one-permission)
+- **问题反馈**：[提交 Issue](https://github.com/kiduo09/one-permission/issues)
+- **Pull Request**：[提交 PR](https://github.com/kiduo09/one-permission/pulls)
+
 如有问题或建议，请提交 Issue 或联系项目维护者。
 
 ---
 
-**ONE-PERMISSION** - 让权限管理更简单、更高效！
+**🎉 ONE-PERMISSION** - 开箱即用的企业级权限管理系统，让权限管理更简单、更高效！
+
+**✨ 特色功能**：
+- 🚀 一键启动，自动初始化
+- 🎨 现代化UI，支持多主题
+- 🔐 完整的权限管理体系
+- 📊 实时数据统计分析
 
