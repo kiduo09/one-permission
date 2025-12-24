@@ -11,9 +11,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://your-prod-host:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: your-username
-    password: your-password
+    url: jdbc:mysql://localhost:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: zhangyu
+    password: zhangyu
     
     # Druid 连接池配置
     druid:
@@ -45,6 +45,20 @@ spring:
         url-pattern: /*
         exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
 
+  # Redis配置
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:  zhangyu
+    database: 2
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
   # Jackson配置
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
@@ -67,6 +81,10 @@ mybatis-plus:
 
 # Sa-Token配置
 sa-token:
+  # 数据持久层配置（使用Redis存储）
+  dao:
+    type: redis-jackson
+
   # token名称（同时也是cookie名称）
   token-name: satoken
   # token有效期，单位s 设置为2小时（7200秒）

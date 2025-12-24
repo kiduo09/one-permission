@@ -579,7 +579,7 @@
 
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
-import { appRoleUserApi, appRoleDepartmentApi } from '@/utils/api'
+import { appRoleUserApi, appRoleDepartmentApi, departmentApi } from '@/utils/api'
 import { message } from 'ant-design-vue'
 
 const props = defineProps({
@@ -1000,50 +1000,27 @@ const addUserFilters = ref({
 // 按部门分配相关 - 穿梭框
 const showAddDepartment = ref(false)
 
-// Mock所有部门数据（树形结构）
-const allDepartmentOptions = ref([
-  { id: 1, name: '研发中心', userCount: 120, children: [
-    { id: 11, name: '前端开发组', userCount: 25 },
-    { id: 12, name: '后端开发组', userCount: 30 },
-    { id: 13, name: '移动开发组', userCount: 18 },
-    { id: 14, name: '算法组', userCount: 15 },
-    { id: 15, name: '数据组', userCount: 12 },
-    { id: 16, name: '测试组', userCount: 20 }
-  ]},
-  { id: 2, name: '产品中心', userCount: 28, children: [
-    { id: 21, name: '产品设计组', userCount: 12 },
-    { id: 22, name: '产品运营组', userCount: 16 }
-  ]},
-  { id: 3, name: '运营中心', userCount: 32, children: [
-    { id: 31, name: '内容运营组', userCount: 18 },
-    { id: 32, name: '活动运营组', userCount: 14 }
-  ]},
-  { id: 4, name: '市场部', userCount: 15 },
-  { id: 5, name: '销售中心', userCount: 38, children: [
-    { id: 51, name: '华东销售组', userCount: 18 },
-    { id: 52, name: '华南销售组', userCount: 20 }
-  ]},
-  { id: 6, name: '财务部', userCount: 12 },
-  { id: 7, name: '人事部', userCount: 8 },
-  { id: 8, name: '技术中心', userCount: 55, children: [
-    { id: 81, name: '架构组', userCount: 15 },
-    { id: 82, name: '测试组', userCount: 20 },
-    { id: 83, name: '运维组', userCount: 20 }
-  ]},
-  { id: 9, name: '设计部', userCount: 14 },
-  { id: 10, name: '客服部', userCount: 22 },
-  { id: 11, name: '行政部', userCount: 10 },
-  { id: 12, name: '质量中心', userCount: 30, children: [
-    { id: 121, name: '质量保证组', userCount: 15 },
-    { id: 122, name: '质量控制组', userCount: 15 }
-  ]},
-  { id: 13, name: '采购部', userCount: 18 },
-  { id: 14, name: '法务部', userCount: 8 },
-  { id: 15, name: '品牌中心', userCount: 25, children: [
-    { id: 151, name: '品牌策划组', userCount: 12 },
-    { id: 152, name: '媒体运营组', userCount: 13 }
-  ]}
-])
+// 所有部门数据（树形结构）- 从后端API获取
+const allDepartmentOptions = ref([])
+
+// 加载部门树数据
+const loadDepartmentTree = async () => {
+  try {
+    const response = await departmentApi.getDepartmentTree()
+    if (response.code === 200 && response.data) {
+      allDepartmentOptions.value = response.data
+    } else {
+      message.error(response.message || '加载部门树失败')
+      allDepartmentOptions.value = []
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error('加载部门树失败:', err)
+    }
+    message.error(err.message || '加载部门树失败')
+    allDepartmentOptions.value = []
+  }
+}
 
 // 展开的部门ID列表
 const expandedDeptIds = ref([])
@@ -1458,6 +1435,9 @@ watch([() => props.appId, () => props.roleId], ([newAppId, newRoleId], [oldAppId
 
 // 组件挂载时加载数据
 onMounted(() => {
+  // 加载部门树数据（用于按部门分配功能）
+  loadDepartmentTree()
+  
   if (props.appId && props.roleId) {
     loadUsers()
     loadDepartments()
@@ -1479,11 +1459,10 @@ const openAddUser = async () => {
   // 加载已添加用户列表，用于标记可选用户列表中的已添加用户
   await loadUsers()
   
-  // 加载部门树（如果需要从后端加载，可以在这里调用API）
-  // 目前使用 mock 数据，如果需要从后端加载，取消下面的注释
-  // if (allDepartmentOptions.value.length === 0) {
-  //   await loadDepartmentTree()
-  // }
+  // 如果部门树数据为空，重新加载
+  if (allDepartmentOptions.value.length === 0) {
+    await loadDepartmentTree()
+  }
   
   // 默认展开所有有子部门的部门
   setTimeout(() => {

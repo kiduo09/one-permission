@@ -2,6 +2,7 @@ package com.zhangyu.permission.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangyu.permission.entity.Department;
+import com.zhangyu.permission.vo.DepartmentTreeVO;
 
 import java.util.List;
 
@@ -19,5 +20,20 @@ public interface DepartmentService extends IService<Department> {
      * @return 部门ID列表（包含自身和所有子部门）
      */
     List<Long> getDepartmentAndChildrenIds(Long departmentId);
+    
+    /**
+     * 根据部门ID计算并更新该部门的 ancestors 字段
+     * 一般在新增或修改部门父级关系时调用
+     * 
+     * @param departmentId 部门ID
+     */
+    void refreshAncestors(Long departmentId);
+    
+    /**
+     * 获取部门树形结构
+     * 
+     * @return 部门树列表
+     */
+    List<DepartmentTreeVO> getDepartmentTree();
 }
 

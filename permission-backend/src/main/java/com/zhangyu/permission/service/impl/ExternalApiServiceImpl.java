@@ -10,6 +10,7 @@ import com.zhangyu.permission.dto.TokenRequestDTO;
 import com.zhangyu.permission.entity.*;
 import com.zhangyu.permission.mapper.*;
 import com.zhangyu.permission.service.ConsumerInfoService;
+import com.zhangyu.permission.service.DepartmentService;
 import com.zhangyu.permission.service.ExternalApiService;
 import com.zhangyu.permission.vo.MenuPermissionVO;
 import com.zhangyu.permission.vo.TokenResponseVO;
@@ -32,6 +33,15 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     
     @Autowired
     private ConsumerInfoService consumerInfoService;
+    
+    @Autowired
+    private DepartmentService departmentService;
+    
+    @Autowired
+    private NormalUserMapper normalUserMapper;
+    
+    @Autowired
+    private AppRoleDepartmentMapper appRoleDepartmentMapper;
     
     @Autowired
     private AppRoleUserMapper appRoleUserMapper;
@@ -97,21 +107,50 @@ public class ExternalApiServiceImpl implements ExternalApiService {
             throw new BusinessException("应用已禁用");
         }
         
-        // 2. 查询用户在该应用下的所有角色
+        // 2. 查询用户在该应用下的所有角色（包含：按用户分配 + 按部门分配）
+        Set<Long> roleIds = new HashSet<>();
+        
+        // 2.1 按用户分配的角色
         LambdaQueryWrapper<AppRoleUser> roleUserWrapper = new LambdaQueryWrapper<>();
         roleUserWrapper.eq(AppRoleUser::getUserWorkNo, queryDTO.getWorkNo());
-        
         List<AppRoleUser> roleUsers = appRoleUserMapper.selectList(roleUserWrapper);
-        if (roleUsers.isEmpty()) {
+        if (!roleUsers.isEmpty()) {
+            roleIds.addAll(
+                    roleUsers.stream()
+                            .map(AppRoleUser::getRoleId)
+                            .collect(Collectors.toSet())
+            );
+        }
+        
+        // 2.2 按部门分配的角色
+        // 先根据工号查询普通用户，获取其主部门ID
+        LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
+        userWrapper.eq(NormalUser::getWorkNo, queryDTO.getWorkNo());
+        userWrapper.eq(NormalUser::getStatus, "正常");
+        NormalUser normalUser = normalUserMapper.selectOne(userWrapper);
+        if (normalUser != null && normalUser.getDepartmentId() != null) {
+            // 获取该部门及其所有子部门ID
+            List<Long> deptIds = departmentService.getDepartmentAndChildrenIds(normalUser.getDepartmentId());
+            if (deptIds != null && !deptIds.isEmpty()) {
+                LambdaQueryWrapper<AppRoleDepartment> roleDeptWrapper = new LambdaQueryWrapper<>();
+                roleDeptWrapper.in(AppRoleDepartment::getDepartmentId, deptIds);
+                List<AppRoleDepartment> roleDepts = appRoleDepartmentMapper.selectList(roleDeptWrapper);
+                if (roleDepts != null && !roleDepts.isEmpty()) {
+                    roleIds.addAll(
+                            roleDepts.stream()
+                                    .map(AppRoleDepartment::getRoleId)
+                                    .collect(Collectors.toSet())
+                    );
+                }
+            }
+        }
+        
+        if (roleIds.isEmpty()) {
+            // 用户既没有按用户分配的角色，也没有按部门分配的角色，直接返回空
             return new ArrayList<>();
         }
         
-        // 3. 获取所有角色ID
-        Set<Long> roleIds = roleUsers.stream()
-                .map(AppRoleUser::getRoleId)
-                .collect(Collectors.toSet());
-        
-        // 4. 验证角色是否属于该应用，并过滤出有效的角色
+        // 3. 验证角色是否属于该应用，并过滤出有效的角色
         LambdaQueryWrapper<AppRole> roleWrapper = new LambdaQueryWrapper<>();
         roleWrapper.in(AppRole::getId, roleIds);
         roleWrapper.eq(AppRole::getAppId, queryDTO.getAppId());

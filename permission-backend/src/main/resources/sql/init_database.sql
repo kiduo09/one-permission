@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `departments` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(200) NOT NULL COMMENT '部门名称',
   `parent_id` bigint(20) DEFAULT NULL COMMENT '父部门ID（NULL表示顶级部门）',
+  `ancestors` varchar(500) DEFAULT '' COMMENT '祖级列表（从顶级到当前部门的ID路径，逗号分隔）',
   `code` varchar(100) DEFAULT NULL COMMENT '部门编码',
   `level` int(11) NOT NULL DEFAULT '1' COMMENT '部门层级（1为顶级）',
   `sort` int(11) NOT NULL DEFAULT '0' COMMENT '显示排序',
@@ -39,29 +40,65 @@ CREATE TABLE IF NOT EXISTS `departments` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_name` (`name`),
   KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_ancestors` (`ancestors`),
   KEY `idx_code` (`code`),
   KEY `idx_status` (`status`),
   KEY `idx_sort` (`sort`),
   KEY `idx_level` (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表';
 
--- 初始化部门数据
-INSERT IGNORE INTO `departments` VALUES ('1', '研发中心', null, 'RD001', '1', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('2', '产品中心', null, 'PD001', '1', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('3', '运营中心', null, 'OP001', '1', '3', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('4', '市场中心', null, 'MK001', '1', '4', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('5', '财务中心', null, 'FN001', '1', '5', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('6', '人事中心', null, 'HR001', '1', '6', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('7', '前端开发组', '1', 'RD001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('8', '后端开发组', '1', 'RD001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('9', '移动开发组', '1', 'RD001-03', '2', '3', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('10', '算法组', '1', 'RD001-04', '2', '4', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('11', '数据组', '1', 'RD001-05', '2', '5', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('12', '测试组', '1', 'RD001-06', '2', '6', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('13', '产品设计组', '2', 'PD001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('14', '产品运营组', '2', 'PD001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('15', '内容运营组', '3', 'OP001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
-INSERT IGNORE INTO `departments` VALUES ('16', '活动运营组', '3', 'OP001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+-- 初始化部门数据（显式列名，避免列顺序变更导致问题）
+-- 顶级部门 ancestors 为空字符串
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('1', '研发中心', null, '', 'RD001', '1', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('2', '产品中心', null, '', 'PD001', '1', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('3', '运营中心', null, '', 'OP001', '1', '3', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('4', '市场中心', null, '', 'MK001', '1', '4', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('5', '财务中心', null, '', 'FN001', '1', '5', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('6', '人事中心', null, '', 'HR001', '1', '6', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+
+-- 二级部门 ancestors 为顶级部门ID
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('7', '前端开发组', '1', '1', 'RD001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('8', '后端开发组', '1', '1', 'RD001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('9', '移动开发组', '1', '1', 'RD001-03', '2', '3', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('10', '算法组', '1', '1', 'RD001-04', '2', '4', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('11', '数据组', '1', '1', 'RD001-05', '2', '5', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('12', '测试组', '1', '1', 'RD001-06', '2', '6', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('13', '产品设计组', '2', '2', 'PD001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('14', '产品运营组', '2', '2', 'PD001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('15', '内容运营组', '3', '3', 'OP001-01', '2', '1', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
+INSERT IGNORE INTO `departments`
+(`id`, `name`, `parent_id`, `ancestors`, `code`, `level`, `sort`, `leader_work_no`, `status`, `remark`, `create_time`, `update_time`) VALUES
+('16', '活动运营组', '3', '3', 'OP001-02', '2', '2', null, '正常', null, '2025-12-17 21:43:37', '2025-12-17 21:43:37');
 
 -- 创建登录用户表
 CREATE TABLE IF NOT EXISTS `login_users` (

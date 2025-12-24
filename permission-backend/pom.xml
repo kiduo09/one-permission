@@ -78,7 +78,13 @@
             <version>${sa-token.version}</version>
         </dependency>
 
-        <!-- Sa-Token 整合 Redis（可选，用于分布式场景） -->
+        <!-- Spring Data Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Sa-Token 整合 Redis -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-redis-jackson</artifactId>
@@ -115,6 +121,8 @@
     </dependencies>
 
     <build>
+    <!-- 固定Jar包名字 -->
+        <finalName>permission-backend</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

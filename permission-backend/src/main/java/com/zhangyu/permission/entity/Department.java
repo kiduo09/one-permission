@@ -35,6 +35,12 @@ public class Department implements Serializable {
     private Long parentId;
     
     /**
+     * 祖级列表（从顶级到当前部门的ID路径，逗号分隔）
+     * 例如：顶级部门 ancestors = ""；子部门 ancestors = "1,3"
+     */
+    private String ancestors;
+    
+    /**
      * 部门编码
      */
     private String code;

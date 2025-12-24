@@ -569,6 +569,18 @@ export const appRoleDepartmentApi = {
 }
 
 /**
+ * 部门管理API
+ */
+export const departmentApi = {
+  /**
+   * 获取部门树形结构
+   */
+  getDepartmentTree() {
+    return get('/departments/tree')
+  }
+}
+
+/**
  * 统计信息API
  */
 export const statisticsApi = {
