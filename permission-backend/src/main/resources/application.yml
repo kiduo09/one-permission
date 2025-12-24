@@ -11,9 +11,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: zhangyu
-    password: zhangyu
+    url: jdbc:mysql://47.99.76.78:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: permission_crud
+    password: 1qazxsw2!@#E
     
     # Druid 连接池配置
     druid:
@@ -47,9 +47,9 @@ spring:
 
   # Redis配置
   redis:
-    host: 127.0.0.1
+    host: 10.1.120.44
     port: 6379
-    password:  zhangyu
+    password:  Xdsw_2021.Com
     database: 2
     timeout: 2000ms
     lettuce:
