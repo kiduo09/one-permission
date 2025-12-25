@@ -16,7 +16,7 @@
     <artifactId>permission-backend</artifactId>
     <version>1.0.0</version>
     <name>permission-backend</name>
-    <description>ONE-PERMISSION 权限管理系统后端服务</description>
+    <description>one-permission 权限管理系统后端服务</description>
 
     <properties>
         <java.version>1.8</java.version>

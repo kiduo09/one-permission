@@ -1,4 +1,4 @@
-# ONE-PERMISSION 后端项目
+# one-permission 后端项目
 
 基于 Spring Boot 的企业级权限管理系统后端服务，提供RESTful API接口和完整的权限管理功能。
 
@@ -367,4 +367,4 @@ curl http://localhost:1105/one-permission/actuator/health/db
 
 ---
 
-**ONE-PERMISSION 后端服务** - 为前端提供强大的权限管理API支持！
+**one-permission 后端服务** - 为前端提供强大的权限管理API支持！

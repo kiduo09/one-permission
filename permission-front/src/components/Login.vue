@@ -3,8 +3,8 @@
     <!-- 左侧品牌区域 -->
     <div class="login-left">
       <div class="brand-content">
-        <h1 class="brand-title">ONE-PERMISSION</h1>
-        <p class="brand-subtitle">ONE-PERMISSION</p>
+        <h1 class="brand-title">one-permission</h1>
+        <p class="brand-subtitle">one-permission</p>
       </div>
       <div class="copyright">
         Copyright © 2018-2025 zhangyu.com All Rights Reserved 章鱼

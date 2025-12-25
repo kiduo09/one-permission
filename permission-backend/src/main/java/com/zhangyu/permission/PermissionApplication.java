@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * ONE-PERMISSION 权限管理系统启动类
+ * one-permission 权限管理系统启动类
  * 
  * @author zhangyu
  */

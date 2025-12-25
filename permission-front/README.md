@@ -1,4 +1,4 @@
-# ONE-PERMISSION 前端项目
+# one-permission 前端项目
 
 基于 Vue 3 + Vite 的现代化前端应用，为权限管理系统提供用户界面。
 

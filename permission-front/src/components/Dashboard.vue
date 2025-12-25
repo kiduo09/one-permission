@@ -4,7 +4,7 @@
       <header class="topbar">
       <div class="brand">
         <span class="brand-icon">🐙</span>
-        <span class="brand-title">ONE-PERMISSION</span>
+        <span class="brand-title">one-permission</span>
       </div>
       <div class="top-actions">
         <div class="top-info">
@@ -211,7 +211,7 @@
           <div class="welcome-screen">
             <div class="welcome-content">
               <div class="welcome-avatar">🐙</div>
-              <h2>欢迎使用ONE-PERMISSION</h2>
+              <h2>欢迎使用one-permission</h2>
               <p>请从左侧菜单选择功能模块，或点击 <strong>首页</strong> 查看接口调用说明文档</p>
             </div>
           </div>
