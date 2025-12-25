@@ -3,10 +3,13 @@ package com.zhangyu.permission.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangyu.permission.entity.Department;
+import com.zhangyu.permission.entity.NormalUser;
 import com.zhangyu.permission.mapper.DepartmentMapper;
+import com.zhangyu.permission.mapper.NormalUserMapper;
 import com.zhangyu.permission.service.DepartmentService;
 import com.zhangyu.permission.vo.DepartmentTreeVO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +26,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
+    
+    @Autowired
+    private NormalUserMapper normalUserMapper;
 
     /**
      * 使用 ancestors 字段获取当前部门及其所有子部门ID
@@ -95,10 +101,20 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         wrapper.orderByAsc(Department::getSort);
         List<Department> allDepartments = this.list(wrapper);
         
+        // 查询每个部门下的用户数量（当前部门，不含子部门）
+        LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
+        userWrapper.eq(NormalUser::getStatus, "正常");
+        List<NormalUser> allUsers = normalUserMapper.selectList(userWrapper);
+        Map<Long, Long> userCountMap = allUsers.stream()
+                .filter(user -> user.getDepartmentId() != null)
+                .collect(Collectors.groupingBy(NormalUser::getDepartmentId, Collectors.counting()));
+        
         // 转换为VO
         List<DepartmentTreeVO> voList = allDepartments.stream().map(dept -> {
             DepartmentTreeVO vo = new DepartmentTreeVO();
             BeanUtils.copyProperties(dept, vo);
+            Long count = userCountMap.get(dept.getId());
+            vo.setUserCount(count != null ? count.intValue() : 0);
             return vo;
         }).collect(Collectors.toList());
         

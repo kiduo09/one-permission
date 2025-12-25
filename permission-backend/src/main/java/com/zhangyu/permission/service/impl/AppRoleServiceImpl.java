@@ -117,13 +117,13 @@ public class AppRoleServiceImpl extends ServiceImpl<AppRoleMapper, AppRole> impl
             throw new BusinessException("应用不存在");
         }
         
-        // 检查系统ID是否已存在（同一应用下）
+        // 检查同一应用下角色名称是否已存在
         LambdaQueryWrapper<AppRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AppRole::getAppId, appId);
-        wrapper.eq(AppRole::getSystemId, createDTO.getSystemId());
+        wrapper.eq(AppRole::getName, createDTO.getName());
         AppRole existRole = this.getOne(wrapper);
         if (existRole != null) {
-            throw new BusinessException("系统ID已存在");
+            throw new BusinessException("该应用下已存在同名角色");
         }
         
         // 创建角色
@@ -149,13 +149,13 @@ public class AppRoleServiceImpl extends ServiceImpl<AppRoleMapper, AppRole> impl
             throw new BusinessException("角色不存在或不属于当前应用");
         }
         
-        // 检查系统ID是否被其他角色使用
+        // 检查同一应用下角色名称是否被其他角色使用
         LambdaQueryWrapper<AppRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AppRole::getAppId, appId);
-        wrapper.eq(AppRole::getSystemId, updateDTO.getSystemId());
+        wrapper.eq(AppRole::getName, updateDTO.getName());
         AppRole existRole = this.getOne(wrapper);
         if (existRole != null && !existRole.getId().equals(id)) {
-            throw new BusinessException("系统ID已被其他角色使用");
+            throw new BusinessException("该应用下已存在同名角色");
         }
         
         // 更新角色

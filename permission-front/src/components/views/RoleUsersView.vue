@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="role-users-container">
     <!-- Tab切换 -->
-    <a-tabs v-model:activeKey="activeTab" style="margin-bottom: 16px;">
+    <a-tabs v-model:activeKey="activeTab" class="role-users-tabs">
       <a-tab-pane key="users" tab="用户">
         <!-- 用户Tab内容 -->
         <div class="tab-content">
@@ -1897,23 +1897,64 @@ const closeAddDepartment = () => {
 const confirmAddDepartment = async () => {
   if (!props.appId || !props.roleId) return
   
-  if (assignedDepartments.value.length === 0) {
+  // 当前弹窗中勾选的部门（部门ID）
+  const newDeptIds = assignedDepartments.value.map(d => d.id)
+  
+  if (newDeptIds.length === 0) {
     message.error('请至少选择一个部门')
     return
   }
   
-  try {
-    const departmentIds = assignedDepartments.value.map(d => d.id)
-    const response = await appRoleDepartmentApi.assignDepartments(props.appId, props.roleId, departmentIds)
-    if (response.code === 200) {
-      message.success('分配成功')
-      closeAddDepartment()
-      await loadDepartments()
-      // 切换到部门tab显示新添加的部门
-      activeTab.value = 'departments'
-    } else {
-      message.error(response.message || '分配失败')
+  // 已分配的部门：来自已分配部门列表（allDepartments）
+  // allDepartments 中：id 为关联表ID，departmentId 为部门ID
+  const existingDeptMap = new Map() // departmentId -> relationId
+  allDepartments.value.forEach(d => {
+    if (d.departmentId) {
+      existingDeptMap.set(d.departmentId, d.id)
     }
+  })
+  
+  const existingDeptIds = Array.from(existingDeptMap.keys())
+  
+  // 需要新增的部门（部门ID）= 新选择的 - 已存在的
+  const toAddDeptIds = newDeptIds.filter(id => !existingDeptIds.includes(id))
+  // 需要取消授权的部门（关联表ID）= 原来有但现在未选中的
+  const toRemoveRelationIds = existingDeptIds
+    .filter(id => !newDeptIds.includes(id))
+    .map(id => existingDeptMap.get(id))
+  
+  try {
+    // 先取消不再勾选的部门授权
+    if (toRemoveRelationIds.length > 0) {
+      const revokeResp = await appRoleDepartmentApi.batchRevokeDepartments(
+        props.appId,
+        props.roleId,
+        toRemoveRelationIds
+      )
+      if (revokeResp.code !== 200) {
+        message.error(revokeResp.message || '取消部门授权失败')
+        return
+      }
+    }
+    
+    // 再新增本次新勾选的部门
+    if (toAddDeptIds.length > 0) {
+      const assignResp = await appRoleDepartmentApi.assignDepartments(
+        props.appId,
+        props.roleId,
+        toAddDeptIds
+      )
+      if (assignResp.code !== 200) {
+        message.error(assignResp.message || '分配部门失败')
+        return
+      }
+    }
+    
+    message.success('保存成功')
+    closeAddDepartment()
+    await loadDepartments()
+    // 切换到部门tab显示最新的已分配部门
+    activeTab.value = 'departments'
   } catch (err) {
     if (import.meta.env.DEV) {
       console.error('分配部门失败:', err)

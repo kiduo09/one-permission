@@ -118,6 +118,34 @@ body {
   cursor: pointer;
 }
 
+/* 角色分配用户/部门 Tab 样式优化 */
+.role-users-container .ant-tabs-nav {
+  margin: 0 0 8px 0 !important; /* 缩小标签与内容之间的距离 */
+}
+
+.role-users-container .ant-tabs-tab {
+  padding: 6px 16px !important;
+  margin: 0 8px 0 0 !important;
+  border-radius: 999px !important;
+  transition: all 0.2s ease;
+}
+
+.role-users-container .ant-tabs-tab-btn {
+  font-size: 13px;
+}
+
+.role-users-container .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ffffff !important;
+}
+
+.role-users-container .ant-tabs-tab-active {
+  background: linear-gradient(90deg, #667eea, #764ba2) !important;
+}
+
+.role-users-container .ant-tabs-ink-bar {
+  background: transparent !important; /* 隐藏底部小横线，改用 pill 高亮 */
+}
+
 .reset:hover {
   background: #f1f5f9;
   border-color: #cbd5e1;
