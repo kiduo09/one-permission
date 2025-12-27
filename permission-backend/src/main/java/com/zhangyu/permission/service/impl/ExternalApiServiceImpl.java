@@ -9,7 +9,6 @@ import com.zhangyu.permission.dto.MenuPermissionQueryDTO;
 import com.zhangyu.permission.dto.TokenRequestDTO;
 import com.zhangyu.permission.entity.*;
 import com.zhangyu.permission.mapper.*;
-import com.zhangyu.permission.service.ConsumerInfoService;
 import com.zhangyu.permission.service.DepartmentService;
 import com.zhangyu.permission.service.ExternalApiService;
 import com.zhangyu.permission.vo.MenuPermissionVO;
@@ -30,9 +29,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ExternalApiServiceImpl implements ExternalApiService {
-    
-    @Autowired
-    private ConsumerInfoService consumerInfoService;
     
     @Autowired
     private DepartmentService departmentService;
@@ -63,40 +59,45 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     
     @Override
     public TokenResponseVO getToken(TokenRequestDTO tokenRequest) {
-        // 1. 验证clientId和clientSecret
-        ConsumerInfo consumer = consumerInfoService.getByClientId(tokenRequest.getClientId());
-        if (consumer == null) {
-            throw new BusinessException("clientId不存在或已禁用");
+        // 1. 验证clientId和clientSecret（从applications表查询）
+        LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Application::getClientId, tokenRequest.getClientId());
+        wrapper.eq(Application::getStatus, "正常");
+        Application application = applicationMapper.selectOne(wrapper);
+        
+        if (application == null) {
+            throw new BusinessException("clientId不存在或应用已禁用");
         }
         
-        if (!consumer.getClientSecret().equals(tokenRequest.getClientSecret())) {
+        if (!application.getClientSecret().equals(tokenRequest.getClientSecret())) {
             throw new BusinessException("clientSecret错误");
         }
         
-        // 2. 使用consumerId作为登录标识，生成token
-        // 注意：这里使用consumerId作为token的loginId，与普通用户登录区分开
-        // 使用前缀"consumer_"来区分外部API token和普通用户token
-        String loginId = "consumer_" + consumer.getId();
+        // 2. 使用应用ID作为登录标识，生成token
+        // 注意：这里使用应用ID作为token的loginId，与普通用户登录区分开
+        // 使用前缀"app_"来区分外部API token和普通用户token
+        String loginId = "app_" + application.getId();
         StpUtil.login(loginId);
         String token = StpUtil.getTokenValue();
         
         // 设置token的额外信息（可选）
-        StpUtil.getSessionByLoginId(loginId).set("consumerId", consumer.getId());
-        StpUtil.getSessionByLoginId(loginId).set("consumerName", consumer.getConsumerName());
+        StpUtil.getSessionByLoginId(loginId).set("appId", application.getId());
+        StpUtil.getSessionByLoginId(loginId).set("appName", application.getName());
+        StpUtil.getSessionByLoginId(loginId).set("clientId", application.getClientId());
         
         // 3. 构建响应
         TokenResponseVO response = new TokenResponseVO();
         response.setAccessToken(token);
         response.setTokenType("Bearer");
         response.setExpiresIn(tokenTimeout);
-        response.setConsumerName(consumer.getConsumerName());
+        response.setConsumerName(application.getName());
         
-        log.info("消费者 {} 获取token成功", consumer.getConsumerName());
+        log.info("应用 {} (clientId: {}) 获取token成功", application.getName(), application.getClientId());
         return response;
     }
     
     @Override
-    public List<MenuPermissionVO> getMenuPermissions(MenuPermissionQueryDTO queryDTO) {
+    public List<MenuPermissionVO> getMenuPermissions(String token, MenuPermissionQueryDTO queryDTO) {
         // 1. 验证应用是否存在
         Application application = applicationMapper.selectById(queryDTO.getAppId());
         if (application == null) {
@@ -105,6 +106,36 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         
         if (!"正常".equals(application.getStatus())) {
             throw new BusinessException("应用已禁用");
+        }
+        
+        // 1.1 从token中获取clientId，验证应用ID和clientId的对应关系
+        if (token == null || token.trim().isEmpty()) {
+            throw new BusinessException("Token无效，请重新获取token");
+        }
+        
+        // 从token中获取loginId（格式：app_应用ID）
+        Object loginIdObj = StpUtil.getLoginIdByToken(token);
+        if (loginIdObj == null) {
+            throw new BusinessException("Token无效，请重新获取token");
+        }
+        
+        String loginId = loginIdObj.toString();
+        if (!loginId.startsWith("app_")) {
+            throw new BusinessException("Token类型错误，请使用应用token");
+        }
+        
+        // 提取应用ID
+        Long tokenAppId = Long.parseLong(loginId.substring(4));
+        
+        // 验证token中的应用ID与查询参数中的应用ID是否一致
+        if (!tokenAppId.equals(queryDTO.getAppId())) {
+            throw new BusinessException("无权调用此应用权限，应用ID不匹配");
+        }
+        
+        // 从session中获取clientId，再次验证
+        String tokenClientId = (String) StpUtil.getSessionByLoginId(loginId).get("clientId");
+        if (tokenClientId == null || !tokenClientId.equals(application.getClientId())) {
+            throw new BusinessException("无权调用此应用权限，clientId不匹配");
         }
         
         // 2. 查询用户在该应用下的所有角色（包含：按用户分配 + 按部门分配）
@@ -259,9 +290,9 @@ public class ExternalApiServiceImpl implements ExternalApiService {
                 return false;
             }
             
-            // 验证是否为外部API token（以"consumer_"开头）
+            // 验证是否为外部API token（以"app_"开头）
             String loginIdStr = String.valueOf(loginId);
-            if (!loginIdStr.startsWith("consumer_")) {
+            if (!loginIdStr.startsWith("app_")) {
                 return false;
             }
             

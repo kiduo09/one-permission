@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -89,14 +90,64 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
             throw new BusinessException("应用Key已存在");
         }
         
+        // 自动生成clientId和clientSecret
+        String clientId = generateClientId();
+        String clientSecret = generateClientSecret();
+        
+        // 检查clientId是否已存在（理论上不会重复，但为了安全还是检查一下）
+        LambdaQueryWrapper<Application> clientIdWrapper = new LambdaQueryWrapper<>();
+        clientIdWrapper.eq(Application::getClientId, clientId);
+        Application existing = this.getOne(clientIdWrapper);
+        if (existing != null) {
+            // 如果重复，重新生成（最多重试10次）
+            for (int i = 0; i < 10; i++) {
+                clientId = generateClientId();
+                clientIdWrapper.clear();
+                clientIdWrapper.eq(Application::getClientId, clientId);
+                existing = this.getOne(clientIdWrapper);
+                if (existing == null) {
+                    break;
+                }
+            }
+            if (existing != null) {
+                throw new BusinessException("生成clientId失败，请重试");
+            }
+        }
+        
         // 创建应用实体
         Application application = new Application();
         BeanUtil.copyProperties(createDTO, application);
+        application.setClientId(clientId);
+        application.setClientSecret(clientSecret);
         
         // 保存
         this.save(application);
         
         return application;
+    }
+    
+    /**
+     * 生成clientId
+     * 格式：app_ + 13位随机字符串（数字+小写字母）
+     * 示例：app_b113b4e000000
+     */
+    private String generateClientId() {
+        // 生成13位随机字符（数字+小写字母）
+        String chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+        StringBuilder randomPart = new StringBuilder();
+        for (int i = 0; i < 13; i++) {
+            randomPart.append(chars.charAt((int) (Math.random() * chars.length())));
+        }
+        
+        return "app_" + randomPart.toString();
+    }
+    
+    /**
+     * 生成clientSecret
+     * 格式：32位十六进制字符串（UUID去掉横线）
+     */
+    private String generateClientSecret() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
     
     @Override

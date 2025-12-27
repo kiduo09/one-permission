@@ -52,12 +52,16 @@ public class ExternalApiController {
         
         // 验证Token
         String token = extractToken(authorization);
-        if (token == null || !externalApiService.validateToken(token)) {
+        if (token == null) {
+            return Result.error(401, "请携带令牌请求");
+        }
+        
+        if (!externalApiService.validateToken(token)) {
             return Result.error(401, "Token无效或已过期");
         }
         
         log.info("查询菜单权限，应用ID: {}，工号: {}", queryDTO.getAppId(), queryDTO.getWorkNo());
-        List<MenuPermissionVO> permissions = externalApiService.getMenuPermissions(queryDTO);
+        List<MenuPermissionVO> permissions = externalApiService.getMenuPermissions(token, queryDTO);
         return Result.success("查询成功", permissions);
     }
     
@@ -72,7 +76,7 @@ public class ExternalApiController {
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         String token = extractToken(authorization);
         if (token == null) {
-            return Result.error(401, "Token不能为空");
+            return Result.error(401, "请携带令牌请求");
         }
         
         boolean valid = externalApiService.validateToken(token);

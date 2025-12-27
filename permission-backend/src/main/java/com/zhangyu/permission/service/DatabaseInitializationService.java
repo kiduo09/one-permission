@@ -3,6 +3,7 @@ package com.zhangyu.permission.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +19,7 @@ import java.util.List;
 /**
  * 数据库初始化服务
  * 在应用启动时检查数据库表和数据，如果不存在则自动创建和初始化
+ * 可通过配置 database.auto-init.enabled 控制是否启用（默认：true）
  *
  * @author zhangyu
  */
@@ -29,8 +31,22 @@ public class DatabaseInitializationService implements CommandLineRunner {
     @Autowired
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * 是否启用数据库自动初始化
+     * 配置项：database.auto-init.enabled
+     * 默认值：true
+     */
+    @Value("${database.auto-init.enabled:true}")
+    private boolean autoInitEnabled;
+
     @Override
     public void run(String... args) throws Exception {
+        // 检查是否启用自动初始化
+        if (!autoInitEnabled) {
+            log.info("数据库自动初始化已禁用（database.auto-init.enabled=false），跳过初始化");
+            return;
+        }
+
         log.info("开始检查数据库初始化状态...");
 
         try {

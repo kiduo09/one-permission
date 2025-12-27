@@ -8,20 +8,29 @@ CREATE TABLE IF NOT EXISTS `applications` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(200) NOT NULL COMMENT '应用名称',
   `app_key` varchar(100) NOT NULL COMMENT '应用Key（唯一标识）',
+  `client_id` varchar(50) NOT NULL COMMENT '客户端ID（用于对外接口认证）',
+  `client_secret` varchar(100) NOT NULL COMMENT '客户端密钥（用于对外接口认证）',
   `remark` varchar(500) DEFAULT NULL COMMENT '备注',
   `status` varchar(20) NOT NULL DEFAULT '正常' COMMENT '状态：正常/禁用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_key` (`app_key`),
+  UNIQUE KEY `uk_client_id` (`client_id`),
   KEY `idx_status` (`status`),
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='应用表';
 
--- 初始化应用数据
-INSERT IGNORE INTO `applications` VALUES ('1', 'CRM系统', 'crm_20251217', 'CRM系统营销系统', '正常', '2025-12-17 21:27:50', '2025-12-17 21:27:50');
-INSERT IGNORE INTO `applications` VALUES ('2', 'ERP系统', 'erp_20251217', 'ERP系统', '正常', '2025-12-17 21:28:43', '2025-12-17 21:28:43');
-INSERT IGNORE INTO `applications` VALUES ('5', 'test', 'test', '3335', '正常', '2025-12-19 15:40:52', '2025-12-19 15:40:52');
+-- 初始化应用数据（显式列名，包含 clientId 和 clientSecret）
+INSERT IGNORE INTO `applications`
+(`id`, `name`, `app_key`, `client_id`, `client_secret`, `remark`, `status`, `create_time`, `update_time`) VALUES
+('1', 'CRM系统', 'crm_20251217', 'app_crm20251217', 'crm20251217clientsecret1234567890123456', 'CRM系统营销系统', '正常', '2025-12-17 21:27:50', '2025-12-17 21:27:50');
+INSERT IGNORE INTO `applications`
+(`id`, `name`, `app_key`, `client_id`, `client_secret`, `remark`, `status`, `create_time`, `update_time`) VALUES
+('2', 'ERP系统', 'erp_20251217', 'app_erp20251217', 'erp20251217clientsecret1234567890123456', 'ERP系统', '正常', '2025-12-17 21:28:43', '2025-12-17 21:28:43');
+INSERT IGNORE INTO `applications`
+(`id`, `name`, `app_key`, `client_id`, `client_secret`, `remark`, `status`, `create_time`, `update_time`) VALUES
+('5', 'test', 'test', 'app_test20251219', 'test20251219clientsecret1234567890123456', '3335', '正常', '2025-12-19 15:40:52', '2025-12-19 15:40:52');
 
 -- 创建部门表
 CREATE TABLE IF NOT EXISTS `departments` (

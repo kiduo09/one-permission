@@ -25,10 +25,11 @@ public interface ExternalApiService {
     /**
      * 根据应用ID和工号查询菜单权限
      * 
+     * @param token 访问令牌
      * @param queryDTO 查询条件
      * @return 菜单权限列表（树形结构）
      */
-    List<MenuPermissionVO> getMenuPermissions(MenuPermissionQueryDTO queryDTO);
+    List<MenuPermissionVO> getMenuPermissions(String token, MenuPermissionQueryDTO queryDTO);
     
     /**
      * 验证Token是否有效

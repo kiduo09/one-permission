@@ -30,6 +30,16 @@ public class ApplicationListVO implements Serializable {
     private String appKey;
     
     /**
+     * 客户端ID（用于对外接口认证）
+     */
+    private String clientId;
+    
+    /**
+     * 客户端密钥（用于对外接口认证）
+     */
+    private String clientSecret;
+    
+    /**
      * 备注
      */
     private String remark;

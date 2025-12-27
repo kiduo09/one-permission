@@ -62,6 +62,34 @@
         <template v-if="column.key === 'createTime'">
           <span style="white-space: nowrap;">{{ formatDate(record.createTime) }}</span>
         </template>
+        <template v-if="column.key === 'clientId'">
+          <span class="copyable-field">
+            {{ record.clientId || '-' }}
+            <a-button 
+              v-if="record.clientId" 
+              type="link" 
+              size="small" 
+              @click="copyToClipboard(record.clientId)"
+              style="padding: 0; margin-left: 4px;"
+            >
+              <CopyOutlined />
+            </a-button>
+          </span>
+        </template>
+        <template v-if="column.key === 'clientSecret'">
+          <span class="copyable-field">
+            {{ maskClientSecret(record.clientSecret) }}
+            <a-button 
+              v-if="record.clientSecret" 
+              type="link" 
+              size="small" 
+              @click="copyToClipboard(record.clientSecret)"
+              style="padding: 0; margin-left: 4px;"
+            >
+              <CopyOutlined />
+            </a-button>
+          </span>
+        </template>
         <template v-if="column.key === 'action'">
           <div class="action-buttons">
             <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
@@ -117,6 +145,20 @@
           :rules="[{ required: true, message: '请输入应用Key' }]"
         >
           <a-input v-model:value="formData.appKey" placeholder="请输入应用Key（如：oa_system）" />
+        </a-form-item>
+        <a-form-item label="ClientId">
+          <a-input 
+            v-model:value="formData.clientId" 
+            :disabled="true"
+            placeholder="系统自动生成"
+          />
+        </a-form-item>
+        <a-form-item label="ClientSecret">
+          <a-input 
+            v-model:value="formData.clientSecret" 
+            :disabled="true"
+            placeholder="系统自动生成"
+          />
         </a-form-item>
         <a-form-item label="状态">
           <a-select v-model:value="formData.status">
@@ -200,6 +242,7 @@
 import { computed, ref, watch, onMounted } from 'vue'
 import { applicationApi, loginUserApi, loginUserAppApi } from '../../utils/api'
 import { message } from 'ant-design-vue'
+import { CopyOutlined } from '@ant-design/icons-vue'
 
 const formRef = ref(null)
 
@@ -224,6 +267,20 @@ const columns = [
     dataIndex: 'appKey',
     key: 'appKey',
     width: 150,
+    ellipsis: true
+  },
+  {
+    title: 'ClientId',
+    dataIndex: 'clientId',
+    key: 'clientId',
+    width: 180,
+    ellipsis: true
+  },
+  {
+    title: 'ClientSecret',
+    dataIndex: 'clientSecret',
+    key: 'clientSecret',
+    width: 200,
     ellipsis: true
   },
   {
@@ -281,6 +338,8 @@ const formData = ref({
   id: null,
   name: '',
   appKey: '',
+  clientId: '',
+  clientSecret: '',
   status: '正常',
   remark: ''
 })
@@ -368,6 +427,8 @@ const openCreate = () => {
     id: null,
     name: '',
     appKey: '',
+    clientId: '系统自动生成',
+    clientSecret: '系统自动生成',
     status: '正常',
     remark: ''
   }
@@ -376,7 +437,11 @@ const openCreate = () => {
 
 const openEdit = (item) => {
   formMode.value = 'edit'
-  formData.value = { ...item }
+  formData.value = { 
+    ...item,
+    clientId: item.clientId || '',
+    clientSecret: item.clientSecret || ''
+  }
   showForm.value = true
 }
 
@@ -522,6 +587,36 @@ const confirmAssignUsers = async () => {
 }
 
 // 格式化日期
+// 复制到剪贴板
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    message.success('已复制到剪贴板')
+  } catch (err) {
+    // 降级方案
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.select()
+    try {
+      document.execCommand('copy')
+      message.success('已复制到剪贴板')
+    } catch (e) {
+      message.error('复制失败')
+    }
+    document.body.removeChild(textArea)
+  }
+}
+
+// 掩码显示 clientSecret（只显示后10位，前面用*代替）
+const maskClientSecret = (clientSecret) => {
+  if (!clientSecret) return '-'
+  if (clientSecret.length <= 10) return clientSecret
+  return '*'.repeat(clientSecret.length - 10) + clientSecret.slice(-10)
+}
+
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
