@@ -89,6 +89,9 @@
             {{ record.menuType }}
           </a-tag>
         </template>
+        <template v-if="column.key === 'permission'">
+          <span>{{ record.permission || '-' }}</span>
+        </template>
         <template v-if="column.key === 'status'">
           <a-tag :color="record.status === '正常' ? 'success' : 'error'">
             {{ record.status }}
@@ -133,12 +136,12 @@
     <a-drawer
       v-model:open="showForm"
       :title="formMode === 'create' ? '新增菜单' : '修改菜单'"
-      :width="600"
+      :width="700"
       placement="right"
       @close="closeForm"
     >
-      <a-form ref="formRef" :model="formData" layout="horizontal" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-        <!-- 上级菜单 - 使用 Ant Design Vue 的 TreeSelect 组件 -->
+      <a-form ref="formRef" :model="formData" layout="horizontal" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+        <!-- 上级菜单：单独一行 -->
         <a-form-item label="上级菜单">
           <a-tree-select
             v-model:value="formData.parentId"
@@ -156,6 +159,7 @@
           />
         </a-form-item>
 
+        <!-- 菜单类型：单独一行 -->
         <a-form-item label="菜单类型">
           <a-radio-group v-model:value="formData.menuType">
             <a-radio value="目录">目录</a-radio>
@@ -164,90 +168,140 @@
           </a-radio-group>
         </a-form-item>
 
-        <a-form-item label="菜单图标">
-          <a-input v-model:value="formData.icon" placeholder="请输入图标名称" />
-        </a-form-item>
+        <!-- 其他字段：两列布局 -->
+        <div class="form-two-columns">
+          <!-- 按钮类型时显示：菜单名称、显示顺序、权限标识 -->
+          <template v-if="formData.menuType === '按钮'">
 
-        <a-form-item 
-          label="菜单名称" 
-          name="name"
-          :rules="[{ required: true, message: '请输入菜单名称' }]"
-        >
-          <a-input v-model:value="formData.name" placeholder="请输入菜单名称" />
-        </a-form-item>
+            <a-form-item 
+              label="菜单名称" 
+              name="name"
+              :rules="[{ required: true, message: '请输入菜单名称' }]"
+            >
+              <a-input v-model:value="formData.name" placeholder="请输入菜单名称" />
+            </a-form-item>
 
-        <a-form-item 
-          label="菜单Key" 
-          name="menuKey"
-          :rules="[{ required: true, message: '请输入菜单Key' }]"
-        >
-          <a-input v-model:value="formData.menuKey" placeholder="请输入菜单Key" />
-        </a-form-item>
+            <a-form-item 
+              label="显示排序" 
+              name="sort"
+              :rules="[{ required: true, message: '请输入排序号' }]"
+            >
+              <a-input-number
+                v-model:value="formData.sort"
+                :min="0"
+                placeholder="请输入排序号"
+                style="width: 100%;"
+              />
+            </a-form-item>
 
-        <a-form-item 
-          label="显示排序" 
-          name="sort"
-          :rules="[{ required: true, message: '请输入排序号' }]"
-        >
-          <a-input-number
-            v-model:value="formData.sort"
-            :min="0"
-            placeholder="请输入排序号"
-            style="width: 100%;"
-          />
-        </a-form-item>
+            <a-form-item label="权限标识">
+              <a-input v-model:value="formData.permission" placeholder="请输入权限标识" />
+            </a-form-item>
+          </template>
 
-        <a-form-item v-if="formData.menuType !== '按钮'" label="是否外链">
-          <a-radio-group v-model:value="formData.isExternal">
-            <a-radio :value="true">是</a-radio>
-            <a-radio :value="false">否</a-radio>
-          </a-radio-group>
-        </a-form-item>
+          <!-- 目录和菜单类型时显示完整表单 -->
+          <template v-else>
+            <a-form-item label="菜单图标">
+              <a-input v-model:value="formData.icon" placeholder="请输入图标名称" />
+            </a-form-item>
 
-        <a-form-item 
-          v-if="formData.menuType !== '按钮'" 
-          label="路由地址" 
-          name="route"
-          :rules="[{ required: true, message: '请输入路由地址' }]"
-        >
-          <a-input v-model:value="formData.route" placeholder="请输入路由地址" />
-        </a-form-item>
+            <a-form-item 
+              label="菜单名称" 
+              name="name"
+              :rules="[{ required: true, message: '请输入菜单名称' }]"
+            >
+              <a-input v-model:value="formData.name" placeholder="请输入菜单名称" />
+            </a-form-item>
 
-        <a-form-item v-if="formData.menuType === '菜单'" label="组件路径">
-          <a-input v-model:value="formData.component" placeholder="请输入组件路径" />
-        </a-form-item>
+            <a-form-item 
+              label="显示排序" 
+              name="sort"
+              :rules="[{ required: true, message: '请输入排序号' }]"
+            >
+              <a-input-number
+                v-model:value="formData.sort"
+                :min="0"
+                placeholder="请输入排序号"
+                style="width: 100%;"
+              />
+            </a-form-item>
 
-        <a-form-item v-if="formData.menuType === '按钮'" label="权限标识">
-          <a-input v-model:value="formData.permission" placeholder="请输入权限标识" />
-        </a-form-item>
+            <a-form-item label="url">
+              <a-input v-model:value="formData.embeddedUrl" placeholder="请输入url" />
+            </a-form-item>
 
-        <a-form-item label="显示状态">
-          <a-radio-group v-model:value="formData.displayStatus">
-            <a-radio value="显示">显示</a-radio>
-            <a-radio value="隐藏">隐藏</a-radio>
-          </a-radio-group>
-        </a-form-item>
+            <a-form-item label="是否外链">
+              <a-radio-group v-model:value="formData.isExternal">
+                <a-radio :value="true">是</a-radio>
+                <a-radio :value="false">否</a-radio>
+              </a-radio-group>
+            </a-form-item>
 
-        <a-form-item label="菜单状态">
-          <a-radio-group v-model:value="formData.status">
-            <a-radio value="正常">正常</a-radio>
-            <a-radio value="停用">停用</a-radio>
-          </a-radio-group>
-        </a-form-item>
+            <a-form-item label="路由地址">
+              <a-input v-model:value="formData.route" placeholder="请输入路由地址" />
+            </a-form-item>
 
-        <a-form-item v-if="formData.menuType !== '按钮'" label="内嵌url">
-          <a-input v-model:value="formData.embeddedUrl" placeholder="请输入内嵌url" />
-        </a-form-item>
+            <a-form-item v-if="formData.menuType === '菜单'" label="组件路径">
+              <a-input v-model:value="formData.component" placeholder="请输入组件路径" />
+            </a-form-item>
 
+            <a-form-item v-if="formData.menuType === '菜单'" label="权限标识">
+              <a-input v-model:value="formData.permission" placeholder="请输入权限标识" />
+            </a-form-item>
+
+            <a-form-item label="显示状态">
+              <a-radio-group v-model:value="formData.displayStatus">
+                <a-radio value="显示">显示</a-radio>
+                <a-radio value="隐藏">隐藏</a-radio>
+              </a-radio-group>
+            </a-form-item>
+
+            <a-form-item label="菜单状态">
+              <a-radio-group v-model:value="formData.status">
+                <a-radio value="正常">正常</a-radio>
+                <a-radio value="停用">停用</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </template>
+        </div>
+
+        <!-- 备注：单独一行 -->
         <a-form-item label="备注">
           <a-textarea
             v-model:value="formData.remark"
             placeholder="请输入备注信息"
-            :rows="3"
+            :rows="4"
             :maxlength="255"
             show-count
           />
         </a-form-item>
+
+        <!-- 预留字段：两列布局 -->
+        <div class="form-two-columns">
+          <a-form-item label="预留字段1">
+            <a-input v-model:value="formData.extField1" placeholder="预留字段1（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+
+          <a-form-item label="预留字段2">
+            <a-input v-model:value="formData.extField2" placeholder="预留字段2（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+
+          <a-form-item label="预留字段3">
+            <a-input v-model:value="formData.extField3" placeholder="预留字段3（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+
+          <a-form-item label="预留字段4">
+            <a-input v-model:value="formData.extField4" placeholder="预留字段4（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+
+          <a-form-item label="预留字段5">
+            <a-input v-model:value="formData.extField5" placeholder="预留字段5（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+
+          <a-form-item label="预留字段6">
+            <a-input v-model:value="formData.extField6" placeholder="预留字段6（用户特殊需求）" :maxlength="100" show-count />
+          </a-form-item>
+        </div>
       </a-form>
       <template #footer>
         <div style="text-align: right;">
@@ -300,7 +354,7 @@
         <a-descriptions-item v-if="currentItem?.menuType === '菜单'" label="组件路径">
           {{ currentItem?.component || '-' }}
         </a-descriptions-item>
-        <a-descriptions-item v-if="currentItem?.menuType === '按钮'" label="权限标识">
+        <a-descriptions-item v-if="currentItem?.menuType === '按钮' || currentItem?.menuType === '菜单'" label="权限标识">
           {{ currentItem?.permission || '-' }}
         </a-descriptions-item>
         <a-descriptions-item label="显示状态">
@@ -311,7 +365,7 @@
             {{ currentItem?.status }}
           </a-tag>
         </a-descriptions-item>
-        <a-descriptions-item v-if="currentItem?.menuType !== '按钮'" label="内嵌url">
+        <a-descriptions-item v-if="currentItem?.menuType !== '按钮'" label="url">
           {{ currentItem?.embeddedUrl || '-' }}
         </a-descriptions-item>
         <a-descriptions-item label="备注">
@@ -397,6 +451,13 @@ const columns = [
     ellipsis: true
   },
   {
+    title: '权限标识',
+    dataIndex: 'permission',
+    key: 'permission',
+    width: 150,
+    ellipsis: true
+  },
+  {
     title: '状态',
     dataIndex: 'status',
     key: 'status',
@@ -477,13 +538,7 @@ const loadMenus = async () => {
     }
   } catch (err) {
     if (import.meta.env.DEV) {
-      console.error('加载菜单数据失败:', err)
-      console.error('错误详情:', {
-        appId: selectedAppId.value,
-        error: err,
-        message: err.message,
-        stack: err.stack
-      })
+        console.error('加载菜单数据失败:', err)
     }
     const errorMsg = err.message || '加载菜单数据失败，请检查：1. 后端服务是否正常运行 2. 数据库是否有菜单数据 3. 网络连接是否正常'
     message.error(errorMsg)
@@ -524,7 +579,13 @@ const formData = ref({
   displayStatus: '显示',
   status: '正常',
   embeddedUrl: '',
-  remark: ''
+  remark: '',
+  extField1: '',
+  extField2: '',
+  extField3: '',
+  extField4: '',
+  extField5: '',
+  extField6: ''
 })
 
 // 根据筛选条件过滤菜单
@@ -808,7 +869,13 @@ const openCreate = (parentMenu = null) => {
     displayStatus: '显示',
     status: '正常',
     embeddedUrl: '',
-    remark: ''
+    remark: '',
+    extField1: '',
+    extField2: '',
+    extField3: '',
+    extField4: '',
+    extField5: '',
+    extField6: ''
   }
   showForm.value = true
 }
@@ -834,7 +901,13 @@ const openEdit = (item) => {
     displayStatus: item.displayStatus || '显示',
     status: item.status || '正常',
     embeddedUrl: item.embeddedUrl || '',
-    remark: item.remark || ''
+    remark: item.remark || '',
+    extField1: item.extField1 || '',
+    extField2: item.extField2 || '',
+    extField3: item.extField3 || '',
+    extField4: item.extField4 || '',
+    extField5: item.extField5 || '',
+    extField6: item.extField6 || ''
   }
   showForm.value = true
 }
@@ -859,9 +932,9 @@ const submitForm = async () => {
 
   try {
     if (formMode.value === 'create') {
+      // 创建时不需要发送 menuKey，后端会自动生成
       const response = await appMenuApi.create(selectedAppId.value, {
         name: formData.value.name,
-        menuKey: formData.value.menuKey,
         parentId: formData.value.parentId,
         menuType: formData.value.menuType,
         icon: formData.value.icon,
@@ -1900,5 +1973,36 @@ const confirmDelete = async () => {
   padding: 0 4px;
   height: auto;
   line-height: 1.5;
+}
+
+/* 菜单表单两列布局 */
+.form-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  align-items: start;
+}
+
+.form-two-columns :deep(.ant-form-item) {
+  margin-bottom: 20px;
+}
+
+/* 确保两列布局中的label宽度与单行一致 */
+/* 由于表单使用 label-col span:4，即约16.67%宽度，两列布局中每个字段占50%，所以label应占每个字段的约33.33%才能对齐 */
+.form-two-columns :deep(.ant-form-item-label) {
+  flex: 0 0 33.33% !important;
+  max-width: 33.33% !important;
+}
+
+.form-two-columns :deep(.ant-form-item-control) {
+  flex: 0 0 66.67% !important;
+  max-width: 66.67% !important;
+}
+
+/* 响应式：小屏幕时改为单列 */
+@media (max-width: 1200px) {
+  .form-two-columns {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

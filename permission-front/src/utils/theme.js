@@ -40,7 +40,6 @@ export function getCurrentTheme() {
 // 设置主题
 export function setTheme(themeName) {
   if (!themes[themeName]) {
-    console.warn(`主题 ${themeName} 不存在`)
     return
   }
   

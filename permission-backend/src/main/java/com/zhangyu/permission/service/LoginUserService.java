@@ -62,5 +62,12 @@ public interface LoginUserService extends IService<LoginUser> {
      * @param ids 用户ID列表
      */
     void batchDelete(java.util.List<Long> ids);
+    
+    /**
+     * 重置密码
+     * 
+     * @param id 用户ID
+     */
+    void resetPassword(Long id);
 }
 

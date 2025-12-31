@@ -3,6 +3,7 @@
 <div align="right">
 
 [![GitHub stars](https://img.shields.io/github/stars/kiduo09/one-permission.svg?style=social&label=Star)](https://github.com/kiduo09/one-permission)
+[![Gitee stars](https://gitee.com/caoxingxing/one-permission/badge/star.svg?theme=white)](https://gitee.com/caoxingxing/one-permission)
 [![GitHub forks](https://img.shields.io/github/forks/kiduo09/one-permission.svg?style=social&label=Fork)](https://github.com/kiduo09/one-permission/fork)
 [![GitHub watchers](https://img.shields.io/github/watchers/kiduo09/one-permission.svg?style=social&label=Watch)](https://github.com/kiduo09/one-permission)
 
@@ -138,7 +139,8 @@
 
 - **项目作者**：章鱼
 - **GitHub 项目地址**：`https://github.com/kiduo09/one-permission`
-- **问题反馈**：欢迎在 GitHub Issue 中提交 Bug 或需求
+- **Gitee 项目地址**：`https://gitee.com/caoxingxing/one-permission`
+- **问题反馈**：欢迎在 GitHub Issue 或 Gitee Issue 中提交 Bug 或需求
 - **QQ 交流群**：`1034408170`
 - **微信公众号**：攻城狮小章鱼（可在项目中查看二维码）
 

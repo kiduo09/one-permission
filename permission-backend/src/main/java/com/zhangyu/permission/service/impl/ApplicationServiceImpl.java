@@ -1,5 +1,6 @@
 package com.zhangyu.permission.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -11,9 +12,11 @@ import com.zhangyu.permission.dto.ApplicationCreateDTO;
 import com.zhangyu.permission.dto.ApplicationQueryDTO;
 import com.zhangyu.permission.dto.ApplicationUpdateDTO;
 import com.zhangyu.permission.entity.Application;
+import com.zhangyu.permission.entity.LoginUser;
 import com.zhangyu.permission.mapper.ApplicationMapper;
 import com.zhangyu.permission.service.ApplicationService;
 import com.zhangyu.permission.service.LoginUserAppService;
+import com.zhangyu.permission.service.LoginUserService;
 import com.zhangyu.permission.vo.ApplicationListVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -37,10 +40,44 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
     @Lazy
     private LoginUserAppService loginUserAppService;
     
+    @Autowired
+    private LoginUserService loginUserService;
+    
     @Override
     public PageResult<ApplicationListVO> pageQuery(ApplicationQueryDTO queryDTO) {
+        // 获取当前登录用户信息，判断是否为系统管理员
+        Long loginUserId = null;
+        boolean isSystemAdmin = false;
+        try {
+            loginUserId = StpUtil.getLoginIdAsLong();
+            if (loginUserId != null) {
+                LoginUser user = loginUserService.getById(loginUserId);
+                if (user != null) {
+                    isSystemAdmin = user.getAdminType() != null && user.getAdminType() == 2;
+                }
+            }
+        } catch (Exception e) {
+            // 如果未登录或获取失败，按普通用户处理
+        }
+        
         // 构建查询条件
         LambdaQueryWrapper<Application> wrapper = new LambdaQueryWrapper<>();
+        
+        // 如果不是系统管理员，只查询授权的应用
+        if (!isSystemAdmin && loginUserId != null) {
+            // 获取用户授权的应用ID列表
+            List<Application> authorizedApps = loginUserAppService.getApplicationsByLoginUserId(loginUserId);
+            if (authorizedApps == null || authorizedApps.isEmpty()) {
+                // 如果没有授权应用，返回空结果
+                return PageResult.of(new java.util.ArrayList<>(), 0L, queryDTO.getPage(), queryDTO.getPageSize());
+            }
+            // 提取应用ID列表
+            List<Long> authorizedAppIds = authorizedApps.stream()
+                    .map(Application::getId)
+                    .collect(Collectors.toList());
+            // 添加应用ID过滤条件
+            wrapper.in(Application::getId, authorizedAppIds);
+        }
         
         // 应用名称模糊查询（过滤null、空字符串和"undefined"）
         String name = queryDTO.getName();

@@ -35,9 +35,8 @@ public class LoginUserCreateDTO implements Serializable {
     private String email;
     
     /**
-     * 密码
+     * 密码（如果为空，则使用默认密码：onepermission）
      */
-    @NotBlank(message = "密码不能为空")
     private String password;
     
     /**

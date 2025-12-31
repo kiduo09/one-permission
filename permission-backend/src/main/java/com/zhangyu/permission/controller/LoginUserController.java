@@ -116,5 +116,18 @@ public class LoginUserController {
         loginUserService.batchDelete(ids);
         return Result.success("批量删除成功");
     }
+    
+    /**
+     * 重置密码
+     * 
+     * @param id 用户ID
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/reset-password")
+    public Result<?> resetPassword(@PathVariable Long id) {
+        log.info("重置用户密码，ID：{}", id);
+        loginUserService.resetPassword(id);
+        return Result.success("密码重置成功，新密码为：onepermission");
+    }
 }
 

@@ -30,6 +30,12 @@ public interface DepartmentService extends IService<Department> {
     void refreshAncestors(Long departmentId);
     
     /**
+     * 从顶级部门开始，递归更新所有部门的 ancestors 字段
+     * 用于批量插入部门后统一更新 ancestors
+     */
+    void refreshAllAncestors();
+    
+    /**
      * 获取部门树形结构
      * 
      * @return 部门树列表

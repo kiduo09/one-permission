@@ -96,8 +96,12 @@ public class LoginUserServiceImpl extends ServiceImpl<LoginUserMapper, LoginUser
         LoginUser loginUser = new LoginUser();
         BeanUtil.copyProperties(createDTO, loginUser);
         
-        // 加密密码
-        loginUser.setPassword(passwordEncoder.encode(createDTO.getPassword()));
+        // 加密密码（如果密码为空，使用默认密码：onepermission）
+        String password = createDTO.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            password = "onepermission";
+        }
+        loginUser.setPassword(passwordEncoder.encode(password));
         
         // 保存
         this.save(loginUser);
@@ -164,6 +168,22 @@ public class LoginUserServiceImpl extends ServiceImpl<LoginUserMapper, LoginUser
         
         // 批量删除
         this.removeByIds(ids);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void resetPassword(Long id) {
+        // 查询用户
+        LoginUser loginUser = this.getById(id);
+        if (loginUser == null) {
+            throw new BusinessException("用户不存在");
+        }
+        
+        // 重置密码为默认密码：onepermission
+        loginUser.setPassword(passwordEncoder.encode("onepermission"));
+        
+        // 保存
+        this.updateById(loginUser);
     }
 }
 

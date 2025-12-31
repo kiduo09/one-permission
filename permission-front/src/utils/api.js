@@ -35,7 +35,6 @@ async function request(url, options = {}) {
     if (process.env.NODE_ENV === 'development') {
       // 开发环境下打印请求信息
       if (import.meta.env.DEV) {
-        console.log('API请求:', url, '请求配置:', config, '响应:', data)
       }
     }
     
@@ -161,7 +160,6 @@ export function get(url, params = {}) {
   const fullUrl = queryString ? `${url}?${queryString}` : url
   // 开发环境下打印请求信息
   if (import.meta.env.DEV) {
-    console.log('GET请求URL:', fullUrl, '参数:', filteredParams)
   }
   return request(fullUrl, { method: 'GET' })
 }
@@ -220,6 +218,39 @@ export const authApi = {
    */
   logout() {
     return post('/auth/logout')
+  },
+  
+  /**
+   * 修改密码
+   */
+  changePassword(oldPassword, newPassword, confirmPassword) {
+    return post('/auth/change-password', { oldPassword, newPassword, confirmPassword })
+  }
+}
+
+/**
+ * 登录日志管理API
+ */
+export const sysLogininforApi = {
+  /**
+   * 分页查询登录日志列表
+   */
+  getList(params) {
+    return get('/sys-logininfor', params)
+  },
+  
+  /**
+   * 删除登录日志
+   */
+  delete(infoId) {
+    return del(`/sys-logininfor/${infoId}`)
+  },
+  
+  /**
+   * 清空登录日志
+   */
+  clean() {
+    return del('/sys-logininfor/clean')
   }
 }
 
@@ -232,6 +263,13 @@ export const loginUserApi = {
    */
   getList(params) {
     return get('/login-users', params)
+  },
+  
+  /**
+   * 重置密码
+   */
+  resetPassword(id) {
+    return post(`/login-users/${id}/reset-password`)
   },
   
   /**

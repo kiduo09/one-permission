@@ -88,6 +88,8 @@ public class AppRoleUserServiceImpl extends ServiceImpl<AppRoleUserMapper, AppRo
         LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
         userWrapper.in(NormalUser::getWorkNo, workNos);
         
+        // 注意：不过滤用户状态，已分配的用户列表中会显示禁用的用户
+        
         // 应用查询条件
         String adAccount = queryDTO.getAdAccount();
         if (StringUtils.hasText(adAccount) && !"undefined".equals(adAccount)) {
@@ -315,6 +317,9 @@ public class AppRoleUserServiceImpl extends ServiceImpl<AppRoleUserMapper, AppRo
         
         // 构建用户查询条件
         LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
+        
+        // 只显示状态为"正常"的用户，禁用的用户不显示在待分配列表中
+        userWrapper.eq(NormalUser::getStatus, "正常");
         
         // 排除已分配的用户
         if (!assignedWorkNos.isEmpty()) {

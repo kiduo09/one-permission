@@ -106,6 +106,36 @@ public class AppMenu implements Serializable {
     private String remark;
     
     /**
+     * 预留字段1（用户特殊需求）
+     */
+    private String extField1;
+    
+    /**
+     * 预留字段2（用户特殊需求）
+     */
+    private String extField2;
+    
+    /**
+     * 预留字段3（用户特殊需求）
+     */
+    private String extField3;
+    
+    /**
+     * 预留字段4（用户特殊需求）
+     */
+    private String extField4;
+    
+    /**
+     * 预留字段5（用户特殊需求）
+     */
+    private String extField5;
+    
+    /**
+     * 预留字段6（用户特殊需求）
+     */
+    private String extField6;
+    
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

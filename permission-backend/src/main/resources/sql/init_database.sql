@@ -282,48 +282,104 @@ CREATE TABLE IF NOT EXISTS `app_menus` (
   `status` varchar(20) NOT NULL DEFAULT '正常' COMMENT '菜单状态：正常/停用',
   `embedded_url` varchar(1000) DEFAULT NULL COMMENT '内嵌url',
   `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+  `ext_field1` varchar(100) DEFAULT NULL COMMENT '预留字段1（用户特殊需求）',
+  `ext_field2` varchar(100) DEFAULT NULL COMMENT '预留字段2（用户特殊需求）',
+  `ext_field3` varchar(100) DEFAULT NULL COMMENT '预留字段3（用户特殊需求）',
+  `ext_field4` varchar(100) DEFAULT NULL COMMENT '预留字段4（用户特殊需求）',
+  `ext_field5` varchar(100) DEFAULT NULL COMMENT '预留字段5（用户特殊需求）',
+  `ext_field6` varchar(100) DEFAULT NULL COMMENT '预留字段6（用户特殊需求）',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_app_menu_id` (`app_id`,`menu_key`),
-  KEY `idx_app_id` (`app_id`),
-  KEY `idx_parent_id` (`parent_id`),
-  KEY `idx_menu_type` (`menu_type`),
-  KEY `idx_status` (`status`),
-  KEY `idx_sort` (`sort`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='应用菜单表';
 
 -- 初始化应用菜单数据（CRM系统）
-INSERT IGNORE INTO `app_menus` VALUES ('1', '1', '客户管理3', 'crm_customer', null, '菜单', 'customer-icon', 'customer-icon-active', '1', '0', '/crm/customer', 'views/CrmCustomer', '', '显示', '正常', '', '客户管理页面', '2025-12-17 22:56:24', '2025-12-17 22:56:24');
-INSERT IGNORE INTO `app_menus` VALUES ('2', '1', '销售管理', 'crm_sales', null, '目录', 'sales-icon', 'sales-icon-active', '2', '0', null, null, null, '显示', '正常', null, '销售管理目录', '2025-12-17 22:56:24', '2025-12-17 22:56:24');
-INSERT IGNORE INTO `app_menus` VALUES ('3', '1', '营销管理', 'crm_marketing', null, '目录', 'marketing-icon', 'marketing-icon-active', '3', '0', null, null, null, '显示', '正常', null, '营销管理目录', '2025-12-17 22:56:24', '2025-12-17 22:56:24');
-INSERT IGNORE INTO `app_menus` VALUES ('4', '1', '销售机会', 'crm_opportunity', '2', '菜单', 'opportunity-icon', 'opportunity-icon-active', '1', '0', '/crm/sales/opportunity', 'views/SalesOpportunity', null, '显示', '正常', null, '销售机会页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('5', '1', '销售订单', 'crm_order', '2', '菜单', 'order-icon', 'order-icon-active', '2', '0', '/crm/sales/order', 'views/SalesOrder', null, '显示', '正常', null, '销售订单页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('6', '1', '销售报表', 'crm_sales_report', '2', '菜单', 'report-icon', 'report-icon-active', '3', '0', '/crm/sales/report', 'views/SalesReport', null, '显示', '正常', null, '销售报表页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('7', '1', '营销活动', 'crm_campaign', '3', '菜单', 'campaign-icon', 'campaign-icon-active', '1', '0', '/crm/marketing/campaign', 'views/MarketingCampaign', null, '显示', '正常', null, '营销活动页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('8', '1', '线索管理', 'crm_leads', '3', '菜单', 'leads-icon', 'leads-icon-active', '2', '0', '/crm/marketing/leads', 'views/LeadsManagement', null, '显示', '正常', null, '线索管理页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('9', '1', '客户分析', 'crm_analysis', '3', '菜单', 'analysis-icon', 'analysis-icon-active', '3', '0', '/crm/marketing/analysis', 'views/CustomerAnalysis', null, '显示', '正常', null, '客户分析页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('25', '1', '111', '222', '6', '按钮', '', null, '0', '0', '', '', '', '显示', '正常', '', '', '2025-12-20 23:17:11', '2025-12-20 23:17:11');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('1', '1', '客户管理3', 'crm_customer', null, '菜单', 'customer-icon', 'customer-icon-active', '1', '0', '/crm/customer', 'views/CrmCustomer', '', '显示', '正常', '', '客户管理页面', null, null, null, null, null, null, '2025-12-17 22:56:24', '2025-12-17 22:56:24');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('2', '1', '销售管理', 'crm_sales', null, '目录', 'sales-icon', 'sales-icon-active', '2', '0', null, null, null, '显示', '正常', null, '销售管理目录', null, null, null, null, null, null, '2025-12-17 22:56:24', '2025-12-17 22:56:24');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('3', '1', '营销管理', 'crm_marketing', null, '目录', 'marketing-icon', 'marketing-icon-active', '3', '0', null, null, null, '显示', '正常', null, '营销管理目录', null, null, null, null, null, null, '2025-12-17 22:56:24', '2025-12-17 22:56:24');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('4', '1', '销售机会', 'crm_opportunity', '2', '菜单', 'opportunity-icon', 'opportunity-icon-active', '1', '0', '/crm/sales/opportunity', 'views/SalesOpportunity', null, '显示', '正常', null, '销售机会页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('5', '1', '销售订单', 'crm_order', '2', '菜单', 'order-icon', 'order-icon-active', '2', '0', '/crm/sales/order', 'views/SalesOrder', null, '显示', '正常', null, '销售订单页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('6', '1', '销售报表', 'crm_sales_report', '2', '菜单', 'report-icon', 'report-icon-active', '3', '0', '/crm/sales/report', 'views/SalesReport', null, '显示', '正常', null, '销售报表页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('7', '1', '营销活动', 'crm_campaign', '3', '菜单', 'campaign-icon', 'campaign-icon-active', '1', '0', '/crm/marketing/campaign', 'views/MarketingCampaign', null, '显示', '正常', null, '营销活动页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('8', '1', '线索管理', 'crm_leads', '3', '菜单', 'leads-icon', 'leads-icon-active', '2', '0', '/crm/marketing/leads', 'views/LeadsManagement', null, '显示', '正常', null, '线索管理页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('9', '1', '客户分析', 'crm_analysis', '3', '菜单', 'analysis-icon', 'analysis-icon-active', '3', '0', '/crm/marketing/analysis', 'views/CustomerAnalysis', null, '显示', '正常', null, '客户分析页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('25', '1', '111', '222', '6', '按钮', '', null, '0', '0', '', '', '', '显示', '正常', '', '', null, null, null, null, null, null, '2025-12-20 23:17:11', '2025-12-20 23:17:11');
 
 -- 初始化应用菜单数据（ERP系统）
-INSERT IGNORE INTO `app_menus` VALUES ('10', '2', '库存管理', 'erp_inventory', null, '菜单', 'inventory-icon', 'inventory-icon-active', '1', '0', '/erp/inventory', 'views/ErpInventory', null, '显示', '正常', null, '库存管理页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('11', '2', '财务管理', 'erp_finance', null, '目录', 'finance-icon', 'finance-icon-active', '2', '0', null, null, null, '显示', '正常', null, '财务管理目录', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('12', '2', '采购管理', 'erp_purchase', null, '目录', 'purchase-icon', 'purchase-icon-active', '3', '0', null, null, null, '显示', '正常', null, '采购管理目录', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('13', '2', '生产管理', 'erp_production', null, '目录', 'production-icon', 'production-icon-active', '4', '0', null, null, null, '显示', '正常', null, '生产管理目录', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('14', '2', '会计科目', 'erp_account', '11', '菜单', 'account-icon', 'account-icon-active', '1', '0', '/erp/finance/account', 'views/FinanceAccount', null, '显示', '正常', null, '会计科目页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('15', '2', '财务报表', 'erp_report', '11', '菜单', 'report-icon', 'report-icon-active', '2', '0', '/erp/finance/report', 'views/FinanceReport', null, '显示', '正常', null, '财务报表页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('16', '2', '资金管理', 'erp_cash', '11', '菜单', 'cash-icon', 'cash-icon-active', '3', '0', '/erp/finance/cash', 'views/FinanceCash', null, '显示', '正常', null, '资金管理页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('17', '2', '成本核算', 'erp_cost', '11', '菜单', 'cost-icon', 'cost-icon-active', '4', '0', '/erp/finance/cost', 'views/CostAccounting', null, '显示', '正常', null, '成本核算页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('18', '2', '采购订单', 'erp_purchase_order', '12', '菜单', 'purchase-order-icon', 'purchase-order-icon-active', '1', '0', '/erp/purchase/order', 'views/PurchaseOrder', null, '显示', '正常', null, '采购订单页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('19', '2', '供应商管理', 'erp_supplier', '12', '菜单', 'supplier-icon', 'supplier-icon-active', '2', '0', '/erp/purchase/supplier', 'views/Supplier', null, '显示', '正常', null, '供应商管理页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('20', '2', '采购入库', 'erp_purchase_in', '12', '菜单', 'purchase-in-icon', 'purchase-in-icon-active', '3', '0', '/erp/purchase/in', 'views/PurchaseIn', null, '显示', '正常', null, '采购入库页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('21', '2', '生产计划', 'erp_production_plan', '13', '菜单', 'production-plan-icon', 'production-plan-icon-active', '1', '0', '/erp/production/plan', 'views/ProductionPlan', null, '显示', '正常', null, '生产计划页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('22', '2', '生产订单', 'erp_production_order', '13', '菜单', 'production-order-icon', 'production-order-icon-active', '2', '0', '/erp/production/order', 'views/ProductionOrder', null, '显示', '正常', null, '生产订单页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('23', '2', '工艺管理', 'erp_process', '13', '菜单', 'process-icon', 'process-icon-active', '3', '0', '/erp/production/process', 'views/ProcessManagement', null, '显示', '正常', null, '工艺管理页面', '2025-12-17 22:56:25', '2025-12-17 22:56:25');
-INSERT IGNORE INTO `app_menus` VALUES ('24', '2', '库存列表', '库存列表', '10', '目录', '', null, '1', '0', '库存列表', '', '', '显示', '正常', '', '', '2025-12-20 10:17:28', '2025-12-20 10:17:28');
-INSERT IGNORE INTO `app_menus` VALUES ('26', '2', '3容忍', '热热', '24', '目录', '', null, '0', '0', 'eeee', '', '', '显示', '正常', '', '', '2025-12-20 23:18:27', '2025-12-20 23:18:27');
-INSERT IGNORE INTO `app_menus` VALUES ('27', '2', '3-2', '3-2', '15', '目录', '', null, '0', '0', '3-2', '', '', '显示', '正常', '', '', '2025-12-20 23:19:54', '2025-12-20 23:19:54');
-INSERT IGNORE INTO `app_menus` VALUES ('28', '2', '3-3', '3-3', '14', '目录', '3-3', null, '0', '0', '3-3', '', '', '显示', '正常', '', '', '2025-12-20 23:20:31', '2025-12-20 23:20:31');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('10', '2', '库存管理', 'erp_inventory', null, '菜单', 'inventory-icon', 'inventory-icon-active', '1', '0', '/erp/inventory', 'views/ErpInventory', null, '显示', '正常', null, '库存管理页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('11', '2', '财务管理', 'erp_finance', null, '目录', 'finance-icon', 'finance-icon-active', '2', '0', null, null, null, '显示', '正常', null, '财务管理目录', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('12', '2', '采购管理', 'erp_purchase', null, '目录', 'purchase-icon', 'purchase-icon-active', '3', '0', null, null, null, '显示', '正常', null, '采购管理目录', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('13', '2', '生产管理', 'erp_production', null, '目录', 'production-icon', 'production-icon-active', '4', '0', null, null, null, '显示', '正常', null, '生产管理目录', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('14', '2', '会计科目', 'erp_account', '11', '菜单', 'account-icon', 'account-icon-active', '1', '0', '/erp/finance/account', 'views/FinanceAccount', null, '显示', '正常', null, '会计科目页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('15', '2', '财务报表', 'erp_report', '11', '菜单', 'report-icon', 'report-icon-active', '2', '0', '/erp/finance/report', 'views/FinanceReport', null, '显示', '正常', null, '财务报表页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('16', '2', '资金管理', 'erp_cash', '11', '菜单', 'cash-icon', 'cash-icon-active', '3', '0', '/erp/finance/cash', 'views/FinanceCash', null, '显示', '正常', null, '资金管理页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('17', '2', '成本核算', 'erp_cost', '11', '菜单', 'cost-icon', 'cost-icon-active', '4', '0', '/erp/finance/cost', 'views/CostAccounting', null, '显示', '正常', null, '成本核算页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('18', '2', '采购订单', 'erp_purchase_order', '12', '菜单', 'purchase-order-icon', 'purchase-order-icon-active', '1', '0', '/erp/purchase/order', 'views/PurchaseOrder', null, '显示', '正常', null, '采购订单页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('19', '2', '供应商管理', 'erp_supplier', '12', '菜单', 'supplier-icon', 'supplier-icon-active', '2', '0', '/erp/purchase/supplier', 'views/Supplier', null, '显示', '正常', null, '供应商管理页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('20', '2', '采购入库', 'erp_purchase_in', '12', '菜单', 'purchase-in-icon', 'purchase-in-icon-active', '3', '0', '/erp/purchase/in', 'views/PurchaseIn', null, '显示', '正常', null, '采购入库页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('21', '2', '生产计划', 'erp_production_plan', '13', '菜单', 'production-plan-icon', 'production-plan-icon-active', '1', '0', '/erp/production/plan', 'views/ProductionPlan', null, '显示', '正常', null, '生产计划页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('22', '2', '生产订单', 'erp_production_order', '13', '菜单', 'production-order-icon', 'production-order-icon-active', '2', '0', '/erp/production/order', 'views/ProductionOrder', null, '显示', '正常', null, '生产订单页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('23', '2', '工艺管理', 'erp_process', '13', '菜单', 'process-icon', 'process-icon-active', '3', '0', '/erp/production/process', 'views/ProcessManagement', null, '显示', '正常', null, '工艺管理页面', null, null, null, null, null, null, '2025-12-17 22:56:25', '2025-12-17 22:56:25');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('24', '2', '库存列表', '库存列表', '10', '目录', '', null, '1', '0', '库存列表', '', '', '显示', '正常', '', '', null, null, null, null, null, null, '2025-12-20 10:17:28', '2025-12-20 10:17:28');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('26', '2', '3容忍', '热热', '24', '目录', '', null, '0', '0', 'eeee', '', '', '显示', '正常', '', '', null, null, null, null, null, null, '2025-12-20 23:18:27', '2025-12-20 23:18:27');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('27', '2', '3-2', '3-2', '15', '目录', '', null, '0', '0', '3-2', '', '', '显示', '正常', '', '', null, null, null, null, null, null, '2025-12-20 23:19:54', '2025-12-20 23:19:54');
+INSERT IGNORE INTO `app_menus` 
+(`id`, `app_id`, `name`, `menu_key`, `parent_id`, `menu_type`, `icon`, `icon_active`, `sort`, `is_external`, `route`, `component`, `permission`, `display_status`, `status`, `embedded_url`, `remark`, `ext_field1`, `ext_field2`, `ext_field3`, `ext_field4`, `ext_field5`, `ext_field6`, `create_time`, `update_time`) VALUES 
+('28', '2', '3-3', '3-3', '14', '目录', '3-3', null, '0', '0', '3-3', '', '', '显示', '正常', '', '', null, null, null, null, null, null, '2025-12-20 23:20:31', '2025-12-20 23:20:31');
 
 -- 创建应用角色表
 CREATE TABLE IF NOT EXISTS `app_roles` (
@@ -446,3 +502,20 @@ CREATE TABLE IF NOT EXISTS `user_departments` (
   KEY `idx_department_id` (`department_id`),
   KEY `idx_is_primary` (`is_primary`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户部门关联表';
+
+-- 创建系统登录日志表
+CREATE TABLE IF NOT EXISTS `sys_logininfor` (
+  `info_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `user_name` varchar(50) DEFAULT '' COMMENT '用户账号',
+  `ipaddr` varchar(128) DEFAULT '' COMMENT '登录IP地址',
+  `login_location` varchar(255) DEFAULT '' COMMENT '登录地点',
+  `browser` varchar(50) DEFAULT '' COMMENT '浏览器类型',
+  `os` varchar(50) DEFAULT '' COMMENT '操作系统',
+  `status` char(1) DEFAULT '0' COMMENT '登录状态（0成功 1失败）',
+  `msg` varchar(255) DEFAULT '' COMMENT '提示消息',
+  `login_time` datetime DEFAULT NULL COMMENT '访问时间',
+  PRIMARY KEY (`info_id`),
+  KEY `idx_user_name` (`user_name`),
+  KEY `idx_login_time` (`login_time`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统访问记录';

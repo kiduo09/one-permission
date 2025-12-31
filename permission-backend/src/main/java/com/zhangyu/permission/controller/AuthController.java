@@ -1,6 +1,7 @@
 package com.zhangyu.permission.controller;
 
 import com.zhangyu.permission.common.Result;
+import com.zhangyu.permission.dto.ChangePasswordDTO;
 import com.zhangyu.permission.dto.LoginDTO;
 import com.zhangyu.permission.service.AuthService;
 import com.zhangyu.permission.vo.LoginResultVO;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 认证控制器
@@ -27,13 +30,20 @@ public class AuthController {
      * 用户登录
      * 
      * @param loginDTO 登录信息
+     * @param request HTTP请求
      * @return 登录结果
      */
     @PostMapping("/login")
-    public Result<LoginResultVO> login(@Validated @RequestBody LoginDTO loginDTO) {
+    public Result<LoginResultVO> login(@Validated @RequestBody LoginDTO loginDTO, HttpServletRequest request) {
         log.info("用户登录：{}", loginDTO.getLoginAccount());
-        LoginResultVO result = authService.login(loginDTO);
-        return Result.success("登录成功", result);
+        try {
+            LoginResultVO result = authService.login(loginDTO, request);
+            return Result.success("登录成功", result);
+        } catch (Exception e) {
+            // 登录失败，记录日志
+            authService.recordLoginFail(loginDTO.getLoginAccount(), e.getMessage(), request);
+            throw e;
+        }
     }
     
     /**
@@ -56,6 +66,18 @@ public class AuthController {
     public Result<?> logout() {
         authService.logout();
         return Result.success("退出登录成功");
+    }
+    
+    /**
+     * 修改密码
+     * 
+     * @param changePasswordDTO 修改密码信息
+     * @return 操作结果
+     */
+    @PostMapping("/change-password")
+    public Result<?> changePassword(@Validated @RequestBody ChangePasswordDTO changePasswordDTO) {
+        authService.changePassword(changePasswordDTO);
+        return Result.success("密码修改成功");
     }
 }
 

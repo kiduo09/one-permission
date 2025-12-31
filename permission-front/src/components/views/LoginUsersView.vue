@@ -71,6 +71,16 @@
             <a-button type="link" danger size="small" @click="openDelete(record)">删除</a-button>
             <a-divider type="vertical" />
             <a-button type="link" size="small" @click="openAssignApps(record)">分配应用</a-button>
+            <a-divider type="vertical" />
+            <a-button type="link" size="small" @click="handleResetPassword(record)">
+              <template #icon>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </template>
+              重置密码
+            </a-button>
           </div>
         </template>
       </template>
@@ -305,7 +315,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 240,
+    width: 320,
     fixed: 'right'
   }
 ]
@@ -477,7 +487,7 @@ const submitForm = async () => {
         loginAccount: formData.value.loginAccount,
         name: formData.value.name,
         email: formData.value.email,
-        password: formData.value.password || '123456', // 默认密码
+        password: formData.value.password || 'onepermission', // 默认密码
         adminType: formData.value.adminType || 1,
         status: formData.value.status,
         remark: formData.value.remark
@@ -534,6 +544,20 @@ const confirmDelete = async () => {
       }
       message.error(err.message || '删除失败')
     }
+  }
+}
+
+// 重置密码
+const handleResetPassword = async (item) => {
+  try {
+    await loginUserApi.resetPassword(item.id)
+    message.success(`密码重置成功，新密码为：onepermission`)
+    loadData() // 重新加载数据
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error('重置密码失败:', err)
+    }
+    message.error(err.message || '重置密码失败')
   }
 }
 

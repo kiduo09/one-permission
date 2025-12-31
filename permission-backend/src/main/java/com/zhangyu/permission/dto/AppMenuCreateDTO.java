@@ -21,9 +21,8 @@ public class AppMenuCreateDTO implements Serializable {
     private String name;
     
     /**
-     * 菜单Key（唯一标识）
+     * 菜单Key（唯一标识，后端自动生成，格式：menu_key + 32位UUID）
      */
-    @NotBlank(message = "菜单Key不能为空")
     private String menuKey;
     
     /**
@@ -91,5 +90,35 @@ public class AppMenuCreateDTO implements Serializable {
      * 备注
      */
     private String remark;
+    
+    /**
+     * 预留字段1（用户特殊需求）
+     */
+    private String extField1;
+    
+    /**
+     * 预留字段2（用户特殊需求）
+     */
+    private String extField2;
+    
+    /**
+     * 预留字段3（用户特殊需求）
+     */
+    private String extField3;
+    
+    /**
+     * 预留字段4（用户特殊需求）
+     */
+    private String extField4;
+    
+    /**
+     * 预留字段5（用户特殊需求）
+     */
+    private String extField5;
+    
+    /**
+     * 预留字段6（用户特殊需求）
+     */
+    private String extField6;
 }
 

@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -142,15 +143,6 @@ public class AppMenuServiceImpl extends ServiceImpl<AppMenuMapper, AppMenu> impl
     public AppMenu create(Long appId, AppMenuCreateDTO createDTO) {
         // 检查应用是否存在（这里简化处理，实际应该调用ApplicationService）
         
-        // 检查菜单Key是否已存在
-        LambdaQueryWrapper<AppMenu> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AppMenu::getAppId, appId);
-        wrapper.eq(AppMenu::getMenuKey, createDTO.getMenuKey());
-        AppMenu existMenu = this.getOne(wrapper);
-        if (existMenu != null) {
-            throw new BusinessException("菜单Key已存在");
-        }
-        
         // 如果指定了父菜单，验证父菜单是否存在
         if (createDTO.getParentId() != null) {
             AppMenu parentMenu = this.getById(createDTO.getParentId());
@@ -159,15 +151,55 @@ public class AppMenuServiceImpl extends ServiceImpl<AppMenuMapper, AppMenu> impl
             }
         }
         
+        // 自动生成菜单Key（格式：menu_key + 32位UUID）
+        String menuKey = generateMenuKey(appId);
+        
         // 创建菜单实体
         AppMenu menu = new AppMenu();
         BeanUtil.copyProperties(createDTO, menu);
         menu.setAppId(appId);
+        menu.setMenuKey(menuKey); // 设置自动生成的menuKey
         
         // 保存
         this.save(menu);
         
         return menu;
+    }
+    
+    /**
+     * 生成菜单Key
+     * 格式：menu_key + 32位UUID（去掉横线）
+     * 示例：menu_key550e8400e29b41d4a716446655440000
+     * 
+     * @param appId 应用ID（用于检查唯一性）
+     * @return 菜单Key
+     */
+    private String generateMenuKey(Long appId) {
+        String menuKey;
+        int maxRetries = 10; // 最多重试10次
+        int retryCount = 0;
+        
+        do {
+            // 生成32位UUID（去掉横线）
+            String uuid = UUID.randomUUID().toString().replace("-", "");
+            menuKey = "menu_key" + uuid;
+            
+            // 检查是否已存在
+            LambdaQueryWrapper<AppMenu> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(AppMenu::getAppId, appId);
+            wrapper.eq(AppMenu::getMenuKey, menuKey);
+            AppMenu existMenu = this.getOne(wrapper);
+            
+            if (existMenu == null) {
+                // 不存在，可以使用
+                return menuKey;
+            }
+            
+            retryCount++;
+        } while (retryCount < maxRetries);
+        
+        // 如果重试10次还是重复，抛出异常
+        throw new BusinessException("生成菜单Key失败，请重试");
     }
     
     @Override
@@ -177,15 +209,6 @@ public class AppMenuServiceImpl extends ServiceImpl<AppMenuMapper, AppMenu> impl
         AppMenu menu = this.getById(id);
         if (menu == null || !menu.getAppId().equals(appId)) {
             throw new BusinessException("菜单不存在或不属于当前应用");
-        }
-        
-        // 检查菜单Key是否被其他菜单使用
-        LambdaQueryWrapper<AppMenu> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AppMenu::getAppId, appId);
-        wrapper.eq(AppMenu::getMenuKey, updateDTO.getMenuKey());
-        AppMenu existMenu = this.getOne(wrapper);
-        if (existMenu != null && !existMenu.getId().equals(id)) {
-            throw new BusinessException("菜单Key已被其他菜单使用");
         }
         
         // 如果指定了父菜单，验证父菜单是否存在且不能是自己
@@ -201,8 +224,8 @@ public class AppMenuServiceImpl extends ServiceImpl<AppMenuMapper, AppMenu> impl
             checkCircularReference(id, updateDTO.getParentId());
         }
         
-        // 更新字段
-        BeanUtil.copyProperties(updateDTO, menu);
+        // 更新字段（不更新menuKey，因为它是自动生成的，不允许修改）
+        BeanUtil.copyProperties(updateDTO, menu, "menuKey");
         
         // 保存
         this.updateById(menu);

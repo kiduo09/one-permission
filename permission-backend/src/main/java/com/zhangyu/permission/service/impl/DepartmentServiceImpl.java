@@ -8,6 +8,7 @@ import com.zhangyu.permission.mapper.DepartmentMapper;
 import com.zhangyu.permission.mapper.NormalUserMapper;
 import com.zhangyu.permission.service.DepartmentService;
 import com.zhangyu.permission.vo.DepartmentTreeVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * 
  * @author zhangyu
  */
+@Slf4j
 @Service
 public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Department> implements DepartmentService {
     
@@ -65,6 +67,16 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     @Override
     public void refreshAncestors(Long departmentId) {
+        refreshAncestors(departmentId, 0);
+    }
+    
+    /**
+     * 刷新单个部门的ancestors字段
+     * 使用递归向上查找父部门的方式构建 ancestors
+     * 
+     * @param departmentId 部门ID
+     */
+    private void refreshAncestors(Long departmentId, int depth) {
         if (departmentId == null) {
             return;
         }
@@ -72,25 +84,179 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if (dept == null) {
             return;
         }
-
-        // 顶级部门：没有父ID，ancestors 置为""
-        if (dept.getParentId() == null) {
-            dept.setAncestors("");
-            this.updateById(dept);
+        
+        // 构建部门ID到部门的映射（只包含当前部门及其父部门链）
+        Map<Long, Department> deptMap = new HashMap<>();
+        buildDeptMap(dept, deptMap, 0);
+        
+        // 递归向上查找父部门，构建 ancestors
+        StringBuilder ancestorsBuilder = new StringBuilder();
+        int level = findParentDept(dept, deptMap, ancestorsBuilder, 0);
+        
+        // 去掉最后一个逗号
+        String ancestors = ancestorsBuilder.length() > 0 
+            ? ancestorsBuilder.substring(0, ancestorsBuilder.length() - 1) 
+            : "";
+        
+        // 更新部门信息
+        dept.setAncestors(ancestors);
+        dept.setLevel(level);
+        this.updateById(dept);
+        
+        log.debug("更新部门 ancestors 成功，部门ID: {}，部门名称: {}，ancestors: {}，level: {}", 
+                departmentId, dept.getName(), ancestors, level);
+    }
+    
+    /**
+     * 构建部门映射（包含当前部门及其所有父部门）
+     * 
+     * @param dept 当前部门
+     * @param deptMap 部门映射
+     * @param depth 当前递归深度（防止死循环）
+     */
+    private void buildDeptMap(Department dept, Map<Long, Department> deptMap, int depth) {
+        // 保险机制：最多递归10次，防止死循环
+        if (depth > 10) {
             return;
         }
-
-        // 非顶级部门：父级的 ancestors + 父ID 组成新的 ancestors
-        Department parent = this.getById(dept.getParentId());
-        String parentAncestors = parent != null ? parent.getAncestors() : "";
-        String newAncestors;
-        if (parentAncestors == null || parentAncestors.trim().isEmpty()) {
-            newAncestors = String.valueOf(dept.getParentId());
-        } else {
-            newAncestors = parentAncestors + "," + dept.getParentId();
+        
+        if (dept == null || dept.getId() == null) {
+            return;
         }
-        dept.setAncestors(newAncestors);
-        this.updateById(dept);
+        
+        // 如果已经添加过，跳过（防止循环引用）
+        if (deptMap.containsKey(dept.getId())) {
+            return;
+        }
+        
+        deptMap.put(dept.getId(), dept);
+        
+        // 递归添加父部门
+        if (dept.getParentId() != null) {
+            Department parent = this.getById(dept.getParentId());
+            if (parent != null) {
+                buildDeptMap(parent, deptMap, depth + 1);
+            }
+        }
+    }
+    
+    @Override
+    public void refreshAllAncestors() {
+        // 1. 查询所有部门
+        List<Department> allDepartments = this.list();
+        
+        if (allDepartments == null || allDepartments.isEmpty()) {
+            log.info("没有部门需要更新 ancestors");
+            return;
+        }
+        
+        log.info("开始统一更新所有部门的 ancestors，共 {} 个部门", allDepartments.size());
+        
+        // 2. 构建部门ID到部门的映射，方便查找
+        Map<Long, Department> deptMap = new HashMap<>();
+        for (Department dept : allDepartments) {
+            deptMap.put(dept.getId(), dept);
+        }
+        
+        // 3. 遍历所有部门，递归向上查找父部门，构建 ancestors
+        int totalProcessed = 0;
+        int totalFailed = 0;
+        
+        for (Department dept : allDepartments) {
+            try {
+                // 递归向上查找所有父部门，构建 ancestors
+                StringBuilder ancestorsBuilder = new StringBuilder();
+                int level = findParentDept(dept, deptMap, ancestorsBuilder, 0);
+                
+                // 去掉最后一个逗号
+                String ancestors = ancestorsBuilder.length() > 0 
+                    ? ancestorsBuilder.substring(0, ancestorsBuilder.length() - 1) 
+                    : "";
+                
+                // 更新部门信息
+                dept.setAncestors(ancestors);
+                dept.setLevel(level);
+                this.updateById(dept);
+                
+                totalProcessed++;
+                log.debug("更新部门 ancestors 成功，部门ID: {}，部门名称: {}，ancestors: {}，level: {}", 
+                        dept.getId(), dept.getName(), ancestors, level);
+            } catch (Exception e) {
+                totalFailed++;
+                log.error("更新部门 ancestors 失败，部门ID: {}，部门名称: {}，错误: {}", 
+                        dept.getId(), dept.getName(), e.getMessage(), e);
+                // 继续处理其他部门，不中断整个流程
+            }
+        }
+        
+        log.info("统一更新所有部门的 ancestors 完成，共处理 {} 个部门，成功: {}，失败: {}", 
+                allDepartments.size(), totalProcessed, totalFailed);
+    }
+    
+    /**
+     * 递归向上查找父部门，构建 ancestors 字符串
+     * 参考：通过递归向上查找，将父部门ID按顺序（从顶级到直接父部门）追加到 ancestors 中
+     * 
+     * @param dept 当前部门
+     * @param deptMap 部门ID到部门的映射
+     * @param ancestorsBuilder ancestors 字符串构建器
+     * @param depth 当前递归深度（防止死循环，最多递归10次）
+     * @return 部门层级
+     */
+    private int findParentDept(Department dept, Map<Long, Department> deptMap, 
+                               StringBuilder ancestorsBuilder, int depth) {
+        // 保险机制：最多递归10次，防止死循环
+        if (depth > 10) {
+            log.warn("查找父部门时检测到可能的循环引用，部门ID: {}，返回层级1", dept.getId());
+            return 1;
+        }
+        
+        // 检查循环引用：如果父部门ID是当前部门ID，则报错
+        if (dept.getParentId() != null && dept.getParentId().equals(dept.getId())) {
+            throw new RuntimeException("检测到循环引用：部门ID " + dept.getId() + " 的父部门是自己");
+        }
+        
+        // 顶级部门：没有父ID，ancestors 为空，层级为1
+        if (dept.getParentId() == null) {
+            return 1;
+        }
+        
+        // 检查父部门是否存在
+        Department parent = deptMap.get(dept.getParentId());
+        if (parent == null) {
+            log.warn("部门ID {} 的父部门不存在（ID: {}），设置为顶级部门", dept.getId(), dept.getParentId());
+            return 1;
+        }
+        
+        // 检查父部门的 ancestors 中是否包含当前部门ID（防止循环引用）
+        String parentAncestors = parent.getAncestors();
+        if (parentAncestors != null && !parentAncestors.trim().isEmpty()) {
+            String[] ancestorIds = parentAncestors.split(",");
+            for (String ancestorId : ancestorIds) {
+                try {
+                    Long ancestorIdLong = Long.parseLong(ancestorId.trim());
+                    if (ancestorIdLong.equals(dept.getId())) {
+                        throw new RuntimeException("检测到循环引用：部门ID " + dept.getId() + " 的祖先链中包含自己");
+                    }
+                } catch (NumberFormatException e) {
+                    // 忽略格式错误
+                }
+            }
+        }
+        
+        // 递归向上查找父部门的父部门
+        int parentLevel = findParentDept(parent, deptMap, ancestorsBuilder, depth + 1);
+        
+        // 将父部门ID追加到 ancestors 中（从顶级到直接父部门的顺序）
+        ancestorsBuilder.append(dept.getParentId()).append(",");
+        
+        // 当前部门层级 = 父部门层级 + 1
+        int currentLevel = parentLevel + 1;
+        if (currentLevel > 10) {
+            throw new RuntimeException("部门层级不能超过10级，当前层级: " + currentLevel + "，部门ID: " + dept.getId());
+        }
+        
+        return currentLevel;
     }
     
     @Override

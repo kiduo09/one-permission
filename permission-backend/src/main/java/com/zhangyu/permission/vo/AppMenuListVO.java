@@ -45,6 +45,16 @@ public class AppMenuListVO implements Serializable {
     private String component;
     
     /**
+     * 菜单类型：目录/菜单/按钮
+     */
+    private String menuType;
+    
+    /**
+     * 权限标识（按钮类型使用）
+     */
+    private String permission;
+    
+    /**
      * 菜单状态
      */
     private String status;

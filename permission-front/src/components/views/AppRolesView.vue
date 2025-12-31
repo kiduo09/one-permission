@@ -410,16 +410,7 @@ const loadMenuTree = async () => {
   }
   
   try {
-    if (import.meta.env.DEV) {
-      console.log('开始加载菜单树，应用ID:', selectedAppId.value)
-    }
-    
     const response = await appMenuApi.getMenuTree(selectedAppId.value)
-    
-    if (import.meta.env.DEV) {
-      console.log('菜单树API响应:', response)
-      console.log('响应数据:', response.data)
-    }
     
     if (response && response.code === 200) {
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
@@ -443,22 +434,11 @@ const loadMenuTree = async () => {
           })
         }
         menuTreeData.value = transformTree(response.data)
-        
-        if (import.meta.env.DEV) {
-          console.log('转换后的菜单树数据:', menuTreeData.value)
-          console.log('菜单树数据数量:', menuTreeData.value.length)
-        }
       } else {
-        if (import.meta.env.DEV) {
-          console.warn('菜单树数据为空，应用ID:', selectedAppId.value)
-        }
         menuTreeData.value = []
         message.warning('该应用下暂无菜单数据，请先在应用菜单管理中创建菜单')
       }
     } else {
-      if (import.meta.env.DEV) {
-        console.warn('菜单树API返回错误:', response)
-      }
       menuTreeData.value = []
       const errorMsg = response?.message || '加载菜单树失败'
       message.error(errorMsg)
@@ -466,12 +446,6 @@ const loadMenuTree = async () => {
   } catch (err) {
     if (import.meta.env.DEV) {
       console.error('加载菜单树异常:', err)
-      console.error('错误详情:', {
-        appId: selectedAppId.value,
-        error: err,
-        message: err.message,
-        stack: err.stack
-      })
     }
     menuTreeData.value = []
     message.error('加载菜单树失败: ' + (err.message || '未知错误'))
@@ -500,16 +474,6 @@ const handleMenuCheck = (checkedKeys, info) => {
       checked: [],
       halfChecked: []
     }
-  }
-  
-  if (import.meta.env.DEV) {
-    console.log('菜单选择变化:', {
-      checkedKeys,
-      checked: checkedKeys?.checked,
-      halfChecked: checkedKeys?.halfChecked,
-      formDataMenuIds: formData.value.menuIds,
-      info
-    })
   }
 }
 
@@ -599,15 +563,6 @@ const openEdit = async (item) => {
         // 将实际选中的叶子菜单ID数组直接传递给树组件
         // 树组件会自动计算父菜单的选中和半选状态
         checkedMenuIds = actualSelectedLeafMenus
-        
-        if (import.meta.env.DEV) {
-          console.log('编辑时菜单状态（使用Ant Design自带逻辑）:', {
-            原始菜单ID: menuIds,
-            叶子节点总数: leafMenuIds.size,
-            实际选中的叶子节点: actualSelectedLeafMenus,
-            说明: '树组件会自动计算父菜单的选中和半选状态'
-          })
-        }
       }
       
       // 设置树组件的选中状态
@@ -625,13 +580,6 @@ const openEdit = async (item) => {
       
       // 使用 nextTick 确保树组件正确渲染和计算状态
       await nextTick()
-      
-      if (import.meta.env.DEV) {
-        console.log('编辑时菜单状态设置完成:', {
-          设置的菜单ID: checkedMenuIds,
-          formDataMenuIds: formData.value.menuIds
-        })
-      }
       
       showForm.value = true
     } else {
@@ -777,11 +725,6 @@ const submitForm = async () => {
     }
     
     menuIds = sortMenuIds(menuIds)
-  }
-  
-  if (import.meta.env.DEV) {
-    console.log('提交的菜单ID列表（包含所有父菜单）:', menuIds)
-    console.log('菜单ID数量:', menuIds.length)
   }
 
   try {

@@ -240,61 +240,186 @@
         </div>
 
         <!-- 内容区域：左侧部门树 + 右侧用户列表 -->
-        <div style="display: flex; gap: 16px; min-height: 400px;">
+        <div style="display: flex; gap: 16px; align-items: flex-start; height: 600px;">
           <!-- 左侧部门树 -->
-          <div style="width: 250px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #f8fafc;">
-            <div style="font-weight: 500; margin-bottom: 12px; color: #1e293b;">部门</div>
-            <div style="max-height: 400px; overflow-y: auto;">
+          <div style="width: 250px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #f8fafc; display: flex; flex-direction: column; height: 600px; box-sizing: border-box;">
+            <div style="font-weight: 500; margin-bottom: 12px; color: #1e293b; flex-shrink: 0;">部门</div>
+            <div style="flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0; padding-right: 4px;" class="dept-tree-scroll">
               <template v-for="dept in departmentTreeForSelect" :key="dept.id">
                 <div 
                   class="tree-item" 
                   :class="{ active: selectedDepartmentForSelect === dept.id }"
                   @click="selectDepartmentForUser(dept)"
-                  style="padding: 6px 8px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; transition: background 0.2s;"
-                  :style="{ background: selectedDepartmentForSelect === dept.id ? '#e6f7ff' : 'transparent' }"
+                  :style="{ 
+                    padding: '6px 8px', 
+                    cursor: 'pointer', 
+                    borderRadius: '4px', 
+                    marginBottom: '4px', 
+                    transition: 'background 0.2s',
+                    background: selectedDepartmentForSelect === dept.id ? '#e6f7ff' : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    minWidth: 'max-content'
+                  }"
                 >
-                  <span v-if="dept.children && dept.children.length > 0" class="tree-toggle" @click.stop="toggleDeptTreeForSelect(dept.id)" style="margin-right: 6px;">
-                    <span v-if="expandedDeptTreeForSelect.includes(dept.id)">▼</span>
-                    <span v-else>▶</span>
-                  </span>
-                  <span v-else style="margin-right: 18px;"></span>
-                  <span>{{ dept.name }}</span>
-                </div>
-                <!-- 子部门 -->
-                <template v-if="dept.children && expandedDeptTreeForSelect.includes(dept.id)">
-                  <div 
-                    v-for="child in dept.children"
-                    :key="child.id"
-                    class="tree-item tree-item-child"
-                    :class="{ active: selectedDepartmentForSelect === child.id }"
-                    @click.stop="selectDepartmentForUser(child)"
-                    style="padding: 6px 8px 6px 32px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; transition: background 0.2s;"
-                    :style="{ background: selectedDepartmentForSelect === child.id ? '#e6f7ff' : 'transparent' }"
+                  <span 
+                    v-if="dept.children && dept.children.length > 0" 
+                    class="tree-toggle expand-icon" 
+                    @click.stop="handleToggleExpand(dept.id, $event)"
+                    style="display: inline-flex; align-items: center; justify-content: center; z-index: 10; position: relative;"
                   >
-                    <span>{{ child.name }}</span>
-                  </div>
+                    <svg 
+                      viewBox="0 0 1024 1024" 
+                      width="12" 
+                      height="12" 
+                      style="color: #000; transition: transform 0.2s; pointer-events: none;"
+                      :style="{ transform: expandedDeptTreeForSelect.includes(dept.id) ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                    >
+                      <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z" fill="currentColor"></path>
+                    </svg>
+                  </span>
+                  <span v-else class="expand-icon-placeholder"></span>
+                  <span style="white-space: nowrap; overflow: visible; flex: 1; min-width: 0;">{{ dept.name }}</span>
+                </div>
+                <!-- 递归渲染子部门 -->
+                <template v-if="dept.children && dept.children.length > 0 && expandedDeptTreeForSelect.includes(dept.id)">
+                  <template v-for="child in dept.children" :key="child.id">
+                    <div 
+                      class="tree-item" 
+                      :class="{ active: selectedDepartmentForSelect === child.id }"
+                      @click.stop="selectDepartmentForUser(child)"
+                      :style="{ 
+                        padding: '6px 8px 6px 32px', 
+                        cursor: 'pointer', 
+                        borderRadius: '4px', 
+                        marginBottom: '4px', 
+                        transition: 'background 0.2s',
+                        background: selectedDepartmentForSelect === child.id ? '#e6f7ff' : 'transparent'
+                      }"
+                    >
+                      <span v-if="child.children && child.children.length > 0" class="tree-toggle expand-icon" @click.stop="handleToggleExpand(child.id, $event)">
+                        <svg 
+                          viewBox="0 0 1024 1024" 
+                          width="12" 
+                          height="12" 
+                          style="color: #000; transition: transform 0.2s;"
+                          :style="{ transform: expandedDeptTreeForSelect.includes(child.id) ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                        >
+                          <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z" fill="currentColor"></path>
+                        </svg>
+                      </span>
+                      <span v-else class="expand-icon-placeholder"></span>
+                      <span style="white-space: nowrap; overflow: visible; flex: 1; min-width: 0;">{{ child.name }}</span>
+                    </div>
+                    <!-- 三级部门 -->
+                    <template v-if="child.children && child.children.length > 0 && expandedDeptTreeForSelect.includes(child.id)">
+                      <template v-for="grandchild in child.children" :key="grandchild.id">
+                        <div 
+                          class="tree-item"
+                          :class="{ active: selectedDepartmentForSelect === grandchild.id }"
+                          @click.stop="selectDepartmentForUser(grandchild)"
+                          :style="{ 
+                            padding: '6px 8px 6px 56px', 
+                            cursor: 'pointer', 
+                            borderRadius: '4px', 
+                            marginBottom: '4px', 
+                            transition: 'background 0.2s',
+                            background: selectedDepartmentForSelect === grandchild.id ? '#e6f7ff' : 'transparent'
+                          }"
+                        >
+                          <span v-if="grandchild.children && grandchild.children.length > 0" class="tree-toggle expand-icon" @click.stop="handleToggleExpand(grandchild.id, $event)">
+                            <svg 
+                              viewBox="0 0 1024 1024" 
+                              width="12" 
+                              height="12" 
+                              style="color: #000; transition: transform 0.2s;"
+                              :style="{ transform: expandedDeptTreeForSelect.includes(grandchild.id) ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                            >
+                              <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z" fill="currentColor"></path>
+                            </svg>
+                          </span>
+                          <span v-else class="expand-icon-placeholder"></span>
+                          <span style="white-space: nowrap; overflow: visible; flex: 1; min-width: 0;">{{ grandchild.name }}</span>
+                        </div>
+                        <!-- 四级部门 -->
+                        <template v-if="grandchild.children && grandchild.children.length > 0 && expandedDeptTreeForSelect.includes(grandchild.id)">
+                          <template v-for="level4 in grandchild.children" :key="level4.id">
+                            <div 
+                              class="tree-item"
+                              :class="{ active: selectedDepartmentForSelect === level4.id }"
+                              @click.stop="selectDepartmentForUser(level4)"
+                              :style="{ 
+                                padding: '6px 8px 6px 80px', 
+                                cursor: 'pointer', 
+                                borderRadius: '4px', 
+                                marginBottom: '4px', 
+                                transition: 'background 0.2s',
+                                background: selectedDepartmentForSelect === level4.id ? '#e6f7ff' : 'transparent'
+                              }"
+                            >
+                              <span v-if="level4.children && level4.children.length > 0" class="tree-toggle expand-icon" @click.stop="handleToggleExpand(level4.id, $event)">
+                                <svg 
+                                  viewBox="0 0 1024 1024" 
+                                  width="12" 
+                                  height="12" 
+                                  style="color: #000; transition: transform 0.2s;"
+                                  :style="{ transform: expandedDeptTreeForSelect.includes(level4.id) ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                                >
+                                  <path d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z" fill="currentColor"></path>
+                                </svg>
+                              </span>
+                              <span v-else class="expand-icon-placeholder"></span>
+                              <span style="white-space: nowrap; overflow: visible; flex: 1; min-width: 0;">{{ level4.name }}</span>
+                            </div>
+                            <!-- 五级及以下部门（继续递归） -->
+                            <template v-if="level4.children && level4.children.length > 0 && expandedDeptTreeForSelect.includes(level4.id)">
+                              <div 
+                                v-for="level5 in level4.children"
+                                :key="level5.id"
+                                class="tree-item"
+                                :class="{ active: selectedDepartmentForSelect === level5.id }"
+                                @click.stop="selectDepartmentForUser(level5)"
+                                :style="{ 
+                                  padding: '6px 8px 6px 104px', 
+                                  cursor: 'pointer', 
+                                  borderRadius: '4px', 
+                                  marginBottom: '4px', 
+                                  transition: 'background 0.2s',
+                                  background: selectedDepartmentForSelect === level5.id ? '#e6f7ff' : 'transparent'
+                                }"
+                              >
+                                <span style="margin-right: 18px; display: inline-block; width: 12px;"></span>
+                                <span style="white-space: nowrap; overflow: visible; flex: 1; min-width: 0;">{{ level5.name }}</span>
+                              </div>
+                            </template>
+                          </template>
+                        </template>
+                      </template>
+                    </template>
+                  </template>
                 </template>
               </template>
             </div>
           </div>
 
           <!-- 右侧用户列表 -->
-          <div style="flex: 1;">
-            <a-table
-              :columns="selectUserColumns"
-              :data-source="selectUserList"
-              :loading="selectUserLoading"
-              :pagination="false"
-              :row-key="record => record.id"
-              :row-selection="{
-                selectedRowKeys: selectedUserIds,
-                onChange: onSelectUserChange,
-                getCheckboxProps: (record) => ({ disabled: isUserAdded(record.workNo) })
-              }"
-              :scroll="{ x: 'max-content' }"
-              bordered
-              :row-class-name="(record) => isUserAdded(record.workNo) ? 'user-added-row' : ''"
-            >
+          <div style="flex: 1; height: 600px; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="flex: 1; overflow-y: auto; min-height: 0;">
+              <a-table
+                :columns="selectUserColumns"
+                :data-source="selectUserList"
+                :loading="selectUserLoading"
+                :pagination="false"
+                :row-key="record => record.id"
+                :row-selection="{
+                  selectedRowKeys: selectedUserIds,
+                  onChange: onSelectUserChange,
+                  getCheckboxProps: (record) => ({ disabled: isUserAdded(record.workNo) })
+                }"
+                :scroll="{ x: 'max-content' }"
+                bordered
+                :row-class-name="(record) => isUserAdded(record.workNo) ? 'user-added-row' : ''"
+              >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'status'">
                   <a-tag :color="record.status === '正常' ? 'success' : 'error'">
@@ -315,10 +440,11 @@
               <template #emptyText>
                 <a-empty description="暂无用户数据" />
               </template>
-            </a-table>
+              </a-table>
+            </div>
 
             <!-- 分页 -->
-            <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <div style="margin-top: 16px; display: flex; justify-content: flex-end; flex-shrink: 0;">
               <a-pagination
                 v-model:current="selectUserPage"
                 v-model:page-size="selectUserPageSize"
@@ -392,28 +518,136 @@
                     </span>
                     <span class="transfer-item-count">（{{ dept.userCount }}人）</span>
                   </div>
-                  <!-- 子部门 - 紧跟在父部门后面 -->
+                  <!-- 递归渲染子部门 -->
                   <template v-if="dept.children && dept.children.length > 0 && expandedDeptIds.includes(dept.id)">
-                    <div 
-                      v-for="child in dept.children"
-                      :key="child.id"
-                      class="transfer-item transfer-item-child"
-                      :class="{ 
-                        selected: selectedAvailableIds.includes(child.id),
-                        disabled: isDepartmentAssigned(child.id) || isParentSelected(dept.id)
-                      }"
-                      @click="handleChildDeptClick(child, dept)"
-                    >
-                      <input 
-                        type="checkbox" 
-                        :checked="selectedAvailableIds.includes(child.id)" 
-                        :disabled="isDepartmentAssigned(child.id) || isParentSelected(dept.id)"
-                        @click.stop="handleChildDeptCheckboxClick(child, dept)"
-                        @change.stop
-                      />
-                      <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(child.id) || isParentSelected(dept.id) }">{{ child.name }}</span>
-                      <span class="transfer-item-count">（{{ child.userCount }}人）</span>
-                    </div>
+                    <template v-for="child in dept.children" :key="child.id">
+                      <div 
+                        class="transfer-item"
+                        :class="{ 
+                          'transfer-item-child': true,
+                          selected: selectedAvailableIds.includes(child.id),
+                          disabled: isDepartmentAssigned(child.id) || isParentSelected(dept.id)
+                        }"
+                        @click="handleChildDeptClick(child, dept)"
+                      >
+                        <input 
+                          type="checkbox" 
+                          :checked="selectedAvailableIds.includes(child.id)" 
+                          :disabled="isDepartmentAssigned(child.id) || isParentSelected(dept.id)"
+                          @click.stop="handleChildDeptCheckboxClick(child, dept)"
+                          @change.stop
+                        />
+                        <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(child.id) || isParentSelected(dept.id) }">
+                          <span v-if="child.children && child.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(child.id)">
+                            <svg v-if="expandedDeptIds.includes(child.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                          {{ child.name }}
+                        </span>
+                        <span class="transfer-item-count">（{{ child.userCount }}人）</span>
+                      </div>
+                      <!-- 三级部门 -->
+                      <template v-if="child.children && child.children.length > 0 && expandedDeptIds.includes(child.id)">
+                        <div 
+                          v-for="grandchild in child.children"
+                          :key="grandchild.id"
+                          class="transfer-item"
+                          :class="{ 
+                            'transfer-item-child': true,
+                            selected: selectedAvailableIds.includes(grandchild.id),
+                            disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                          }"
+                          @click="handleChildDeptClick(grandchild, child)"
+                          style="padding-left: 56px;"
+                        >
+                          <input 
+                            type="checkbox" 
+                            :checked="selectedAvailableIds.includes(grandchild.id)" 
+                            :disabled="isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                            @click.stop="handleChildDeptCheckboxClick(grandchild, child)"
+                            @change.stop
+                          />
+                          <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                            <span v-if="grandchild.children && grandchild.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(grandchild.id)">
+                              <svg v-if="expandedDeptIds.includes(grandchild.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                              <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                            {{ grandchild.name }}
+                          </span>
+                          <span class="transfer-item-count">（{{ grandchild.userCount }}人）</span>
+                        </div>
+                        <!-- 四级及以下部门 -->
+                        <template v-if="grandchild.children && grandchild.children.length > 0 && expandedDeptIds.includes(grandchild.id)">
+                          <div 
+                            v-for="level4 in grandchild.children"
+                            :key="level4.id"
+                            class="transfer-item"
+                            :class="{ 
+                              'transfer-item-child': true,
+                              selected: selectedAvailableIds.includes(level4.id),
+                              disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                            }"
+                            @click="handleChildDeptClick(level4, grandchild)"
+                            style="padding-left: 80px;"
+                          >
+                            <input 
+                              type="checkbox" 
+                              :checked="selectedAvailableIds.includes(level4.id)" 
+                              :disabled="isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                              @click.stop="handleChildDeptCheckboxClick(level4, grandchild)"
+                              @change.stop
+                            />
+                            <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                              <span v-if="level4.children && level4.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(level4.id)">
+                                <svg v-if="expandedDeptIds.includes(level4.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                              </span>
+                              {{ level4.name }}
+                            </span>
+                            <span class="transfer-item-count">（{{ level4.userCount }}人）</span>
+                          </div>
+                          <!-- 五级及以下部门（继续递归） -->
+                          <template v-if="level4.children && level4.children.length > 0 && expandedDeptIds.includes(level4.id)">
+                            <div 
+                              v-for="level5 in level4.children"
+                              :key="level5.id"
+                              class="transfer-item"
+                              :class="{ 
+                                'transfer-item-child': true,
+                                selected: selectedAvailableIds.includes(level5.id),
+                                disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                              }"
+                              @click="handleChildDeptClick(level5, level4)"
+                              style="padding-left: 104px;"
+                            >
+                              <input 
+                                type="checkbox" 
+                                :checked="selectedAvailableIds.includes(level5.id)" 
+                                :disabled="isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                                @click.stop="handleChildDeptCheckboxClick(level5, level4)"
+                                @change.stop
+                              />
+                              <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                                {{ level5.name }}
+                              </span>
+                              <span class="transfer-item-count">（{{ level5.userCount }}人）</span>
+                            </div>
+                          </template>
+                        </template>
+                      </template>
+                    </template>
                   </template>
                 </template>
               </div>
@@ -578,7 +812,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, nextTick } from 'vue'
 import { appRoleUserApi, appRoleDepartmentApi, departmentApi } from '@/utils/api'
 import { message } from 'ant-design-vue'
 
@@ -976,12 +1210,26 @@ const departmentTreeForSelect = computed(() => {
 
 // 切换部门树展开/折叠
 const toggleDeptTreeForSelect = (id) => {
-  const index = expandedDeptTreeForSelect.value.indexOf(id)
+  const current = Array.isArray(expandedDeptTreeForSelect.value) ? [...expandedDeptTreeForSelect.value] : []
+  const index = current.indexOf(id)
   if (index > -1) {
-    expandedDeptTreeForSelect.value.splice(index, 1)
+    // 移除ID
+    const newArray = current.filter(item => item !== id)
+    expandedDeptTreeForSelect.value = newArray
   } else {
-    expandedDeptTreeForSelect.value.push(id)
+    // 添加ID
+    const newArray = [...current, id]
+    expandedDeptTreeForSelect.value = newArray
   }
+}
+
+// 处理展开/折叠点击事件
+const handleToggleExpand = (id, event) => {
+  if (event) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+  toggleDeptTreeForSelect(id)
 }
 
 // 选择部门（用于筛选用户）
@@ -1448,6 +1696,7 @@ const openAddUser = async () => {
   showAddUser.value = true
   selectedUserIds.value = []
   selectedDepartmentForSelect.value = null
+  // 重置展开状态，但不立即设置默认展开
   expandedDeptTreeForSelect.value = []
   addUserFilters.value = {
     adAccount: '',
@@ -1464,12 +1713,13 @@ const openAddUser = async () => {
     await loadDepartmentTree()
   }
   
-  // 默认展开所有有子部门的部门
-  setTimeout(() => {
-    expandedDeptTreeForSelect.value = allDepartmentOptions.value
-      .filter(dept => dept.children && dept.children.length > 0)
-      .map(dept => dept.id)
-  }, 100)
+  // 不自动展开，让用户手动控制
+  // 如果需要默认展开，可以取消下面的注释
+  // nextTick(() => {
+  //   expandedDeptTreeForSelect.value = allDepartmentOptions.value
+  //     .filter(dept => dept.children && dept.children.length > 0)
+  //     .map(dept => dept.id)
+  // })
   
   // 加载可选用户列表
   await loadSelectUsers()
@@ -1596,11 +1846,6 @@ const confirmAddUsers = async () => {
     }
   } catch (err) {
     console.error('添加用户失败:', err)
-    console.error('错误详情:', {
-      message: err.message,
-      stack: err.stack,
-      response: err.response
-    })
     message.error(err.message || '添加用户失败')
   }
 }
@@ -2329,6 +2574,7 @@ const allNormalUsers = ref([
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
+  min-width: max-content;
   color: #1e293b;
   font-size: 13px;
   cursor: pointer;
@@ -2404,6 +2650,59 @@ const allNormalUsers = ref([
 
 .tree-item:hover .tree-icon {
   color: #667eea;
+}
+
+/* 展开/折叠图标样式 - 参考菜单列表 */
+.expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 6px;
+}
+
+.expand-icon:hover {
+  background: #f0f0f0;
+  border-radius: 2px;
+}
+
+.expand-icon svg {
+  display: block;
+}
+
+.expand-icon-placeholder {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+}
+
+/* 自定义滚动条样式 - 确保滚动条可见且不遮挡内容 */
+.dept-tree-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dept-tree-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dept-tree-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dept-tree-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 确保部门树项目可以横向滚动 */
+.dept-tree-scroll .tree-item {
+  min-width: max-content;
 }
 
 .user-list {

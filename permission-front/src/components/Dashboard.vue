@@ -20,6 +20,15 @@
             <span class="stars-count">{{ githubStars }}</span>
             <span class="stars-label">Star</span>
           </a>
+          <!-- Gitee Stars 按钮 -->
+          <a href="https://gitee.com/caoxingxing/one-permission" target="_blank" class="github-stars-btn" title="在 Gitee 上关注项目">
+            <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" fill="#c71d23"/>
+              <text x="12" y="16" font-size="14" font-weight="bold" fill="white" text-anchor="middle">码</text>
+            </svg>
+            <span class="stars-count">{{ giteeStars }}</span>
+            <span class="stars-label">Star</span>
+          </a>
           <!-- 主题切换按钮 -->
           <a-dropdown :trigger="['click']" placement="bottomRight">
             <button class="theme-toggle-btn" @click.prevent>
@@ -59,6 +68,13 @@
             </div>
             <template #overlay>
               <a-menu>
+                <a-menu-item key="changePassword" @click="handleChangePassword">
+                  <svg class="password-icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H20C20.5304 3 21.0391 3.21071 21.4142 3.58579C21.7893 3.96086 22 4.46957 22 5V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>修改密码</span>
+                </a-menu-item>
                 <a-menu-item key="logout" @click="handleLogout">
                   <svg class="logout-icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -160,6 +176,9 @@
             <a-menu-item key="systemMenus">
               <span>系统菜单管理</span>
             </a-menu-item>
+            <a-menu-item key="sysLogininfor">
+              <span>登录日志</span>
+            </a-menu-item>
           </a-sub-menu>
         </a-menu>
       </aside>
@@ -219,6 +238,29 @@
       </main>
     </div>
 
+    <!-- 修改密码弹窗 -->
+    <a-modal
+      v-model:open="showChangePasswordModal"
+      title="修改密码"
+      ok-text="确定"
+      cancel-text="取消"
+      @ok="confirmChangePassword"
+      @cancel="cancelChangePassword"
+      :confirm-loading="changePasswordLoading"
+    >
+      <a-form :model="changePasswordForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="旧密码" :rules="[{ required: true, message: '请输入旧密码' }]">
+          <a-input-password v-model:value="changePasswordForm.oldPassword" placeholder="请输入旧密码" />
+        </a-form-item>
+        <a-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码' }]">
+          <a-input-password v-model:value="changePasswordForm.newPassword" placeholder="请输入新密码" />
+        </a-form-item>
+        <a-form-item label="确认密码" :rules="[{ required: true, message: '请再次输入新密码' }]">
+          <a-input-password v-model:value="changePasswordForm.confirmPassword" placeholder="请再次输入新密码" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    
     <!-- 退出登录确认弹窗 -->
     <a-modal
       v-model:open="showLogoutConfirm"
@@ -246,6 +288,7 @@ import AppMenusView from './views/AppMenusView.vue'
 import AppRolesView from './views/AppRolesView.vue'
 import SystemRolesView from './views/SystemRolesView.vue'
 import SystemMenusView from './views/SystemMenusView.vue'
+import SysLogininforView from './views/SysLogininforView.vue'
 import RoleUsersView from './views/RoleUsersView.vue'
 import DashboardView from './views/DashboardView.vue'
 import ApiDocumentationView from './views/ApiDocumentationView.vue'
@@ -274,6 +317,9 @@ const handleThemeChange = ({ key }) => {
 // GitHub Stars 数量
 const githubStars = ref(0)
 
+// Gitee Stars 数量
+const giteeStars = ref(0)
+
 // 加载 GitHub Stars 数量
 const loadGitHubStars = async () => {
   try {
@@ -289,6 +335,21 @@ const loadGitHubStars = async () => {
   }
 }
 
+// 加载 Gitee Stars 数量
+const loadGiteeStars = async () => {
+  try {
+    const response = await fetch('https://gitee.com/api/v5/repos/caoxingxing/one-permission')
+    if (response.ok) {
+      const data = await response.json()
+      giteeStars.value = data.stargazers_count || 0
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error('获取 Gitee Stars 失败:', error)
+    }
+  }
+}
+
 // 监听主题变更事件和加载用户信息
 onMounted(() => {
   window.addEventListener('theme-change', (event) => {
@@ -296,6 +357,7 @@ onMounted(() => {
   })
   loadCurrentUser()
   loadGitHubStars()
+  loadGiteeStars()
 })
 
 // Tab管理
@@ -321,6 +383,7 @@ const componentMap = {
   appRoles: AppRolesView,
   systemRoles: SystemRolesView,
   systemMenus: SystemMenusView,
+  sysLogininfor: SysLogininforView,
   roleUsers: RoleUsersView
 }
 
@@ -336,6 +399,7 @@ const pageConfig = {
   appRoles: { title: '应用角色管理', group: '应用管理' },
   systemRoles: { title: '系统角色管理', group: '系统管理' },
   systemMenus: { title: '系统菜单管理', group: '系统管理' },
+  sysLogininfor: { title: '登录日志', group: '系统管理' },
   roleUsers: { title: '分配用户', group: '应用管理' }
 }
 
@@ -512,6 +576,74 @@ const loadCurrentUser = async () => {
   }
 }
 
+
+// 修改密码相关
+const showChangePasswordModal = ref(false)
+const changePasswordLoading = ref(false)
+const changePasswordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const handleChangePassword = () => {
+  changePasswordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  showChangePasswordModal.value = true
+}
+
+const confirmChangePassword = async () => {
+  // 验证表单
+  if (!changePasswordForm.value.oldPassword) {
+    message.error('请输入旧密码')
+    return
+  }
+  if (!changePasswordForm.value.newPassword) {
+    message.error('请输入新密码')
+    return
+  }
+  if (!changePasswordForm.value.confirmPassword) {
+    message.error('请再次输入新密码')
+    return
+  }
+  if (changePasswordForm.value.newPassword !== changePasswordForm.value.confirmPassword) {
+    message.error('新密码和确认密码不一致')
+    return
+  }
+  
+  changePasswordLoading.value = true
+  try {
+    const { authApi } = await import('../utils/api')
+    await authApi.changePassword(
+      changePasswordForm.value.oldPassword,
+      changePasswordForm.value.newPassword,
+      changePasswordForm.value.confirmPassword
+    )
+    message.success('密码修改成功')
+    showChangePasswordModal.value = false
+    changePasswordForm.value = {
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }
+  } catch (error) {
+    message.error(error.message || '密码修改失败')
+  } finally {
+    changePasswordLoading.value = false
+  }
+}
+
+const cancelChangePassword = () => {
+  showChangePasswordModal.value = false
+  changePasswordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+}
 
 // 退出登录确认弹窗
 const showLogoutConfirm = ref(false)
@@ -821,7 +953,8 @@ const cancelLogout = () => {
   transform: scale(1.05);
 }
 
-.logout-icon-small {
+.logout-icon-small,
+.password-icon-small {
   width: 14px;
   height: 14px;
   margin-right: 8px;

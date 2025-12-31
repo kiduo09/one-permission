@@ -11,9 +11,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.99.76.78:3306/permission_db2?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: permission_crud
-    password: 1qazxsw2!@#E
+    url: jdbc:mysql://localhost:3306/permission_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
     
     # Druid 连接池配置
     druid:
@@ -112,7 +112,7 @@ database:
   # 是否在应用启动时自动初始化数据库表和数据（默认：true）
   # 设置为 false 可禁用自动初始化
   auto-init:
-    enabled: true
+    enabled: false
 
 # 日志配置
 logging:
