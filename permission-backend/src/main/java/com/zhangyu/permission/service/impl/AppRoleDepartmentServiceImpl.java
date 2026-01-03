@@ -20,6 +20,7 @@ import com.zhangyu.permission.mapper.ApplicationMapper;
 import com.zhangyu.permission.mapper.DepartmentMapper;
 import com.zhangyu.permission.mapper.NormalUserMapper;
 import com.zhangyu.permission.service.AppRoleDepartmentService;
+import com.zhangyu.permission.service.DepartmentService;
 import com.zhangyu.permission.vo.RoleDepartmentListVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class AppRoleDepartmentServiceImpl extends ServiceImpl<AppRoleDepartmentM
     
     @Autowired
     private NormalUserMapper normalUserMapper;
+    
+    @Autowired
+    private DepartmentService departmentService;
     
     @Override
     public PageResult<RoleDepartmentListVO> pageQueryDepartments(Long appId, Long roleId, RoleDepartmentQueryDTO queryDTO) {
@@ -116,11 +120,15 @@ public class AppRoleDepartmentServiceImpl extends ServiceImpl<AppRoleDepartmentM
                     vo.setDepartmentId(dept.getId());
                     vo.setDepartmentName(dept.getName());
                     
-                    // 查询部门下的用户数量
-                    LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
-                    userWrapper.eq(NormalUser::getDepartmentId, dept.getId());
-                    Long userCount = normalUserMapper.selectCount(userWrapper);
-                    vo.setUserCount(userCount.intValue());
+                    // TODO: 暂时注释掉部门人数统计，因为接口太慢，后续优化
+                    // 查询部门及其所有子部门下的用户数量
+                    // List<Long> deptAndChildrenIds = departmentService.getDepartmentAndChildrenIds(dept.getId());
+                    // LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
+                    // userWrapper.in(NormalUser::getDepartmentId, deptAndChildrenIds);
+                    // userWrapper.eq(NormalUser::getStatus, "正常");
+                    // Long userCount = normalUserMapper.selectCount(userWrapper);
+                    // vo.setUserCount(userCount.intValue());
+                    vo.setUserCount(0); // 暂时设置为0，后续优化
                     
                     vo.setCreateTime(roleDept.getCreateTime());
                     allVoList.add(vo);

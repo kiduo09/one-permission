@@ -40,7 +40,7 @@ public class DepartmentTreeVO implements Serializable {
     private Integer level;
     
     /**
-     * 部门人数（当前部门下的用户数量，不含子部门）
+     * 部门人数（当前部门及其所有子部门下的用户数量总和）
      */
     private Integer userCount;
     

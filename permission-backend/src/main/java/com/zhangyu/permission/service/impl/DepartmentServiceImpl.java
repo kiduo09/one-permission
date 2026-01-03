@@ -267,20 +267,61 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         wrapper.orderByAsc(Department::getSort);
         List<Department> allDepartments = this.list(wrapper);
         
-        // 查询每个部门下的用户数量（当前部门，不含子部门）
-        LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
-        userWrapper.eq(NormalUser::getStatus, "正常");
-        List<NormalUser> allUsers = normalUserMapper.selectList(userWrapper);
-        Map<Long, Long> userCountMap = allUsers.stream()
-                .filter(user -> user.getDepartmentId() != null)
-                .collect(Collectors.groupingBy(NormalUser::getDepartmentId, Collectors.counting()));
+        // TODO: 暂时注释掉部门人数统计，因为接口太慢，后续优化
+        // 查询所有正常状态的用户
+        // LambdaQueryWrapper<NormalUser> userWrapper = new LambdaQueryWrapper<>();
+        // userWrapper.eq(NormalUser::getStatus, "正常");
+        // List<NormalUser> allUsers = normalUserMapper.selectList(userWrapper);
+        //
+        // 建立部门ID到ancestors的映射（用于快速查找）
+        // Map<Long, String> deptAncestorsMap = allDepartments.stream()
+        //         .collect(Collectors.toMap(Department::getId, dept -> dept.getAncestors() != null ? dept.getAncestors() : ""));
+        //
+        // 统计每个部门及其所有子部门下的用户数量
+        // 对于每个部门，统计：
+        // 1. departmentId 等于该部门ID的用户
+        // 2. departmentId 对应的部门的 ancestors 包含该部门ID的用户
+        // Map<Long, Long> userCountMap = new HashMap<>();
+        // for (Department dept : allDepartments) {
+        //     Long deptId = dept.getId();
+        //     String deptIdStr = String.valueOf(deptId);
+        //     long count = 0;
+        //
+        //     for (NormalUser user : allUsers) {
+        //         if (user.getDepartmentId() == null) {
+        //             continue;
+        //         }
+        //
+        //         // 情况1：用户直接属于该部门
+        //         if (user.getDepartmentId().equals(deptId)) {
+        //             count++;
+        //         } else {
+        //             // 情况2：用户所属部门的 ancestors 包含该部门ID
+        //             String userDeptAncestors = deptAncestorsMap.get(user.getDepartmentId());
+        //             if (userDeptAncestors != null && !userDeptAncestors.isEmpty()) {
+        //                 // 使用 FIND_IN_SET 逻辑：检查 deptIdStr 是否在 ancestors 中
+        //                 // ancestors 格式：空字符串 或 "1" 或 "1,2" 或 "1,2,3"
+        //                 String[] ancestorIds = userDeptAncestors.split(",");
+        //                 for (String ancestorId : ancestorIds) {
+        //                     if (ancestorId.trim().equals(deptIdStr)) {
+        //                         count++;
+        //                         break;
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //
+        //     userCountMap.put(deptId, count);
+        // }
         
-        // 转换为VO
+        // 转换为VO（暂时不统计人数，设置为0）
         List<DepartmentTreeVO> voList = allDepartments.stream().map(dept -> {
             DepartmentTreeVO vo = new DepartmentTreeVO();
             BeanUtils.copyProperties(dept, vo);
-            Long count = userCountMap.get(dept.getId());
-            vo.setUserCount(count != null ? count.intValue() : 0);
+            // Long count = userCountMap.get(dept.getId());
+            // vo.setUserCount(count != null ? count.intValue() : 0);
+            vo.setUserCount(0); // 暂时设置为0，后续优化
             return vo;
         }).collect(Collectors.toList());
         

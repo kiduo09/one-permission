@@ -112,7 +112,7 @@ database:
   # 是否在应用启动时自动初始化数据库表和数据（默认：true）
   # 设置为 false 可禁用自动初始化
   auto-init:
-    enabled: false
+    enabled: true
 
 # 日志配置
 logging:

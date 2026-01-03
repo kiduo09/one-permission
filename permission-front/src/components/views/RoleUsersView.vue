@@ -154,9 +154,6 @@
               <template v-if="column.key === 'departmentName'">
                 {{ record.departmentName || '-' }}
               </template>
-              <template v-if="column.key === 'userCount'">
-                {{ record.userCount || 0 }}
-              </template>
               <template v-if="column.key === 'createTime'">
                 {{ formatDate(record.createTime) }}
               </template>
@@ -516,7 +513,6 @@
                       </span>
                       {{ dept.name }}
                     </span>
-                    <span class="transfer-item-count">（{{ dept.userCount }}人）</span>
                   </div>
                   <!-- 递归渲染子部门 -->
                   <template v-if="dept.children && dept.children.length > 0 && expandedDeptIds.includes(dept.id)">
@@ -548,103 +544,99 @@
                           </span>
                           {{ child.name }}
                         </span>
-                        <span class="transfer-item-count">（{{ child.userCount }}人）</span>
                       </div>
                       <!-- 三级部门 -->
                       <template v-if="child.children && child.children.length > 0 && expandedDeptIds.includes(child.id)">
-                        <div 
-                          v-for="grandchild in child.children"
-                          :key="grandchild.id"
-                          class="transfer-item"
-                          :class="{ 
-                            'transfer-item-child': true,
-                            selected: selectedAvailableIds.includes(grandchild.id),
-                            disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
-                          }"
-                          @click="handleChildDeptClick(grandchild, child)"
-                          style="padding-left: 56px;"
-                        >
-                          <input 
-                            type="checkbox" 
-                            :checked="selectedAvailableIds.includes(grandchild.id)" 
-                            :disabled="isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
-                            @click.stop="handleChildDeptCheckboxClick(grandchild, child)"
-                            @change.stop
-                          />
-                          <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
-                            <span v-if="grandchild.children && grandchild.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(grandchild.id)">
-                              <svg v-if="expandedDeptIds.includes(grandchild.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                              <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            </span>
-                            {{ grandchild.name }}
-                          </span>
-                          <span class="transfer-item-count">（{{ grandchild.userCount }}人）</span>
-                        </div>
-                        <!-- 四级及以下部门 -->
-                        <template v-if="grandchild.children && grandchild.children.length > 0 && expandedDeptIds.includes(grandchild.id)">
+                        <template v-for="grandchild in child.children" :key="grandchild.id">
                           <div 
-                            v-for="level4 in grandchild.children"
-                            :key="level4.id"
                             class="transfer-item"
                             :class="{ 
                               'transfer-item-child': true,
-                              selected: selectedAvailableIds.includes(level4.id),
-                              disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                              selected: selectedAvailableIds.includes(grandchild.id),
+                              disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
                             }"
-                            @click="handleChildDeptClick(level4, grandchild)"
-                            style="padding-left: 80px;"
+                            @click="handleChildDeptClick(grandchild, child)"
+                            style="padding-left: 56px;"
                           >
                             <input 
                               type="checkbox" 
-                              :checked="selectedAvailableIds.includes(level4.id)" 
-                              :disabled="isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
-                              @click.stop="handleChildDeptCheckboxClick(level4, grandchild)"
+                              :checked="selectedAvailableIds.includes(grandchild.id)" 
+                              :disabled="isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                              @click.stop="handleChildDeptCheckboxClick(grandchild, child)"
                               @change.stop
                             />
-                            <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
-                              <span v-if="level4.children && level4.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(level4.id)">
-                                <svg v-if="expandedDeptIds.includes(level4.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                              <span v-if="grandchild.children && grandchild.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(grandchild.id)">
+                                <svg v-if="expandedDeptIds.includes(grandchild.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                               </span>
-                              {{ level4.name }}
+                              {{ grandchild.name }}
                             </span>
-                            <span class="transfer-item-count">（{{ level4.userCount }}人）</span>
                           </div>
-                          <!-- 五级及以下部门（继续递归） -->
-                          <template v-if="level4.children && level4.children.length > 0 && expandedDeptIds.includes(level4.id)">
-                            <div 
-                              v-for="level5 in level4.children"
-                              :key="level5.id"
-                              class="transfer-item"
-                              :class="{ 
-                                'transfer-item-child': true,
-                                selected: selectedAvailableIds.includes(level5.id),
-                                disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
-                              }"
-                              @click="handleChildDeptClick(level5, level4)"
-                              style="padding-left: 104px;"
-                            >
-                              <input 
-                                type="checkbox" 
-                                :checked="selectedAvailableIds.includes(level5.id)" 
-                                :disabled="isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
-                                @click.stop="handleChildDeptCheckboxClick(level5, level4)"
-                                @change.stop
-                              />
-                              <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
-                                {{ level5.name }}
-                              </span>
-                              <span class="transfer-item-count">（{{ level5.userCount }}人）</span>
-                            </div>
-                          </template>
+                          <!-- 四级及以下部门 -->
+                          <div v-if="grandchild?.children && grandchild.children.length > 0 && expandedDeptIds.includes(grandchild.id)">
+                            <template v-for="level4 in grandchild.children" :key="level4.id">
+                              <div 
+                                class="transfer-item"
+                                :class="{ 
+                                  'transfer-item-child': true,
+                                  selected: selectedAvailableIds.includes(level4.id),
+                                  disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                                }"
+                                @click="handleChildDeptClick(level4, grandchild)"
+                                style="padding-left: 80px;"
+                              >
+                                <input 
+                                  type="checkbox" 
+                                  :checked="selectedAvailableIds.includes(level4.id)" 
+                                  :disabled="isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                                  @click.stop="handleChildDeptCheckboxClick(level4, grandchild)"
+                                  @change.stop
+                                />
+                                <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                                  <span v-if="level4.children && level4.children.length > 0" class="tree-toggle" @click.stop="toggleDeptExpand(level4.id)">
+                                    <svg v-if="expandedDeptIds.includes(level4.id)" class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg v-else class="tree-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                  </span>
+                                  {{ level4.name }}
+                                </span>
+                              </div>
+                              <!-- 五级及以下部门（继续递归） -->
+                              <div v-if="level4.children && level4.children.length > 0 && expandedDeptIds.includes(level4.id)">
+                                <template v-for="level5 in level4.children" :key="level5.id">
+                                  <div 
+                                    class="transfer-item"
+                                    :class="{ 
+                                      'transfer-item-child': true,
+                                      selected: selectedAvailableIds.includes(level5.id),
+                                      disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)
+                                    }"
+                                    @click="handleChildDeptClick(level5, level4)"
+                                    style="padding-left: 104px;"
+                                  >
+                                    <input 
+                                      type="checkbox" 
+                                      :checked="selectedAvailableIds.includes(level5.id)" 
+                                      :disabled="isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id)"
+                                      @click.stop="handleChildDeptCheckboxClick(level5, level4)"
+                                      @change.stop
+                                    />
+                                    <span class="transfer-item-label" :class="{ disabled: isDepartmentAssigned(level5.id) || isParentSelected(level4.id) || isParentSelected(grandchild.id) || isParentSelected(child.id) || isParentSelected(dept.id) }">
+                                      {{ level5.name }}
+                                    </span>
+                                  </div>
+                                </template>
+                              </div>
+                            </template>
+                          </div>
                         </template>
                       </template>
                     </template>
@@ -704,7 +696,6 @@
                     @change.stop
                   />
                   <span class="transfer-item-label">{{ dept.name }}</span>
-                  <span class="transfer-item-count">（{{ dept.userCount }}人）</span>
                 </div>
               </div>
             </div>
@@ -840,6 +831,20 @@ const emit = defineEmits(['close'])
 // Tab切换
 const activeTab = ref('users')
 
+// 监听Tab切换，切换到部门tab时确保加载部门树数据
+watch(activeTab, async (newTab) => {
+  if (newTab === 'departments') {
+    // 切换到部门tab时，如果部门树数据为空，重新加载
+    if (allDepartmentOptions.value.length === 0) {
+      await loadDepartmentTree()
+    }
+    // 确保部门列表已加载
+    if (allDepartments.value.length === 0) {
+      await loadDepartments()
+    }
+  }
+})
+
 // 用户表格列定义
 const userColumns = [
   {
@@ -964,12 +969,6 @@ const departmentColumns = [
     key: 'departmentName',
     width: 200,
     ellipsis: true
-  },
-  {
-    title: '部门人数',
-    dataIndex: 'userCount',
-    key: 'userCount',
-    width: 120
   },
   {
     title: '创建时间',
@@ -1275,12 +1274,14 @@ const expandedDeptIds = ref([])
 
 // 切换部门展开/折叠
 const toggleDeptExpand = (id) => {
-  const index = expandedDeptIds.value.indexOf(id)
+  const current = [...expandedDeptIds.value]
+  const index = current.indexOf(id)
   if (index > -1) {
-    expandedDeptIds.value.splice(index, 1)
+    current.splice(index, 1)
   } else {
-    expandedDeptIds.value.push(id)
+    current.push(id)
   }
+  expandedDeptIds.value = current
 }
 
 // 检查部门是否已分配（在已选列表中）
@@ -1422,8 +1423,17 @@ const toggleSelectAllAssigned = () => {
 }
 
 // 检查父部门是否被选中（传入父部门id，检查该父部门是否被选中）
+// 包括左侧选中的部门和右侧已选的部门
 const isParentSelected = (parentId) => {
-  return selectedAvailableIds.value.includes(parentId)
+  // 检查左侧选中的部门
+  if (selectedAvailableIds.value.includes(parentId)) {
+    return true
+  }
+  // 检查右侧已选的部门
+  if (assignedDepartments.value.some(d => d.id === parentId)) {
+    return true
+  }
+  return false
 }
 
 // 处理部门点击（父部门）
@@ -1458,13 +1468,53 @@ const handleChildDeptCheckboxClick = (child, parent) => {
   toggleSelectAvailable(child.id)
 }
 
+// 递归查找部门（在所有层级中查找）
+const findDeptById = (depts, targetId) => {
+  for (const dept of depts) {
+    if (dept.id === targetId) {
+      return dept
+    }
+    if (dept.children && dept.children.length > 0) {
+      const found = findDeptById(dept.children, targetId)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+// 递归收集所有子部门ID
+const collectChildrenIds = (dept) => {
+  const ids = []
+  if (dept.children && dept.children.length > 0) {
+    for (const child of dept.children) {
+      ids.push(child.id)
+      ids.push(...collectChildrenIds(child))
+    }
+  }
+  return ids
+}
+
 // 切换选中状态
 const toggleSelectAvailable = (id) => {
   const index = selectedAvailableIds.value.indexOf(id)
   if (index > -1) {
+    // 取消选中
     selectedAvailableIds.value.splice(index, 1)
   } else {
+    // 选中该部门
     selectedAvailableIds.value.push(id)
+    
+    // 如果选中了父部门，自动取消所有子部门的选中状态
+    const dept = findDeptById(allDepartmentOptions.value, id)
+    if (dept) {
+      const childrenIds = collectChildrenIds(dept)
+      childrenIds.forEach(childId => {
+        const childIndex = selectedAvailableIds.value.indexOf(childId)
+        if (childIndex > -1) {
+          selectedAvailableIds.value.splice(childIndex, 1)
+        }
+      })
+    }
   }
 }
 
@@ -1491,19 +1541,23 @@ const toggleSelectAssigned = (id) => {
 const addSelectedDepartments = () => {
   const idsToAdd = [...selectedAvailableIds.value]
   idsToAdd.forEach(id => {
-    // 查找父部门
-    let dept = availableDepartments.value.find(d => d.id === id)
-    if (!dept) {
-      // 查找子部门
-      for (const parent of availableDepartments.value) {
-        if (parent.children) {
-          dept = parent.children.find(c => c.id === id)
-          if (dept) break
-        }
-      }
-    }
+    // 从 allDepartmentOptions 中递归查找部门（包括所有层级）
+    const dept = findDeptById(allDepartmentOptions.value, id)
     if (dept && !assignedDepartments.value.find(d => d.id === id)) {
-      assignedDepartments.value.push({ ...dept })
+      // 创建一个新的部门对象，但不包含 children（右侧列表不需要显示子部门）
+      const deptToAdd = { ...dept }
+      // 可以选择保留 children 或者移除，根据需求决定
+      // 这里保留 children，以便后续可能需要
+      assignedDepartments.value.push(deptToAdd)
+      
+      // 如果选中了父部门，自动取消所有子部门的选中状态（从 selectedAvailableIds 中移除）
+      const childrenIds = collectChildrenIds(dept)
+      childrenIds.forEach(childId => {
+        const index = selectedAvailableIds.value.indexOf(childId)
+        if (index > -1) {
+          selectedAvailableIds.value.splice(index, 1)
+        }
+      })
     }
   })
   selectedAvailableIds.value = []
@@ -2096,37 +2150,57 @@ const currentRevokeDepartment = ref(null)
 const showBatchRevokeDepartment = ref(false)
 
 // 按部门分配相关函数
-const openAddDepartment = () => {
+const openAddDepartment = async () => {
   showAddDepartment.value = true
+  // 如果部门树数据为空，重新加载
+  if (allDepartmentOptions.value.length === 0) {
+    await loadDepartmentTree()
+  }
   // 初始化已选部门（从已分配部门中加载）
-  assignedDepartments.value = allDepartments.value.map(d => {
-    // 先查找父部门
-    let dept = allDepartmentOptions.value.find(opt => opt.name === d.departmentName || opt.name === d.department)
-    if (!dept) {
-      // 如果没找到，可能是子部门，查找所有子部门
-      for (const parent of allDepartmentOptions.value) {
-        if (parent.children) {
-          dept = parent.children.find(child => child.name === d.departmentName || child.name === d.department)
-          if (dept) {
-            // 返回子部门的完整信息
-            return { ...dept }
-          }
-        }
+  // 递归查找部门（包括子部门）
+  const findDept = (depts, targetName) => {
+    for (const dept of depts) {
+      if (dept.name === targetName) {
+        return dept
+      }
+      if (dept.children && dept.children.length > 0) {
+        const found = findDept(dept.children, targetName)
+        if (found) return found
       }
     }
+    return null
+  }
+  assignedDepartments.value = allDepartments.value.map(d => {
+    const dept = findDept(allDepartmentOptions.value, d.departmentName || d.department)
     return dept ? { ...dept } : null
   }).filter(d => d !== null)
   selectedAvailableIds.value = []
   selectedAssignedIds.value = []
   availableSearchKeyword.value = ''
   assignedSearchKeyword.value = ''
-  // 默认展开所有有子部门的部门
+  // 默认只展开第一级和第二级部门
   expandedDeptIds.value = []
   // 延迟展开，确保DOM渲染完成
+  await nextTick()
   setTimeout(() => {
-    expandedDeptIds.value = allDepartmentOptions.value
-      .filter(dept => dept.children && dept.children.length > 0)
-      .map(dept => dept.id)
+    // 只收集第一级和第二级有子部门的部门ID
+    const collectFirstTwoLevelIds = (depts, level = 1) => {
+      const ids = []
+      for (const dept of depts) {
+        if (dept.children && dept.children.length > 0) {
+          // 第一级和第二级都展开
+          if (level <= 2) {
+            ids.push(dept.id)
+            // 如果是第二级，不再递归收集第三级
+            if (level < 2) {
+              ids.push(...collectFirstTwoLevelIds(dept.children, level + 1))
+            }
+          }
+        }
+      }
+      return ids
+    }
+    expandedDeptIds.value = collectFirstTwoLevelIds(allDepartmentOptions.value)
   }, 100)
 }
 
